@@ -19,25 +19,30 @@
  */
 package qa;
 
+import org.junit.Test;
+
 import java.io.IOException;
 import java.nio.CharBuffer;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
-import org.junit.Test;
-
+import org.neo4j.csv.reader.CharReadable;
 import org.neo4j.csv.reader.CharSeeker;
 import org.neo4j.csv.reader.Extractor;
 import org.neo4j.csv.reader.Extractors;
 import org.neo4j.csv.reader.Mark;
-
-import static java.lang.Math.min;
-import static java.lang.System.currentTimeMillis;
+import org.neo4j.csv.reader.SourceMonitor;
+import org.neo4j.csv.reader.ThreadAheadReadable;
 
 import static org.junit.Assert.assertTrue;
 
+import static java.lang.System.currentTimeMillis;
+
 import static org.neo4j.csv.reader.BufferedCharSeeker.DEFAULT_BUFFER_SIZE;
 import static org.neo4j.csv.reader.CharSeekers.charSeeker;
+import static org.neo4j.csv.reader.SourceMonitor.DONT;
+import static org.neo4j.helpers.Format.bytes;
 import static org.neo4j.helpers.Format.duration;
 
 public class CharSeekerPerformanceTest
@@ -50,7 +55,7 @@ public class CharSeekerPerformanceTest
     {
         // GIVEN
         ValueType[] types = new ValueType[] {ValueType.LONG, ValueType.STRING, ValueType.QUOTED_STRING};
-        Readable reader = endlessStreamOfRandomStuff( types );
+        CharReadable reader = endlessStreamOfRandomStuff( types );
         CharSeeker seeker = charSeeker( reader, DEFAULT_BUFFER_SIZE, true, QUOTE );
         Mark mark = new Mark();
         Extractors extractors = new Extractors( ',' );
@@ -94,9 +99,48 @@ public class CharSeekerPerformanceTest
         }
     }
 
-    private Readable endlessStreamOfRandomStuff( final ValueType... types )
+    @Test
+    public void shouldMeasureThreadAheadPerformanceProblems() throws Exception
     {
-        return new Readable()
+        // GIVEN
+        final CharReadable reader = ThreadAheadReadable.threadAhead(
+                endlessStreamOfRandomStuff( ValueType.LONG, ValueType.STRING, ValueType.QUOTED_STRING ),
+                DEFAULT_BUFFER_SIZE );
+
+        // WHEN
+        char[] buffer = new char[DEFAULT_BUFFER_SIZE];
+        final AtomicLong read = new AtomicLong();
+        final long startTime = currentTimeMillis();
+        Thread stats = new Thread()
+        {
+            @Override
+            public void run()
+            {
+                while ( true )
+                {
+                    try
+                    {
+                        Thread.sleep( 2000 );
+                    }
+                    catch ( InterruptedException e )
+                    {
+                        throw new RuntimeException( e );
+                    }
+
+                    System.out.println( bytes( read.get() / (currentTimeMillis()-startTime) ) + "/s " + reader );
+                }
+            }
+        };
+        stats.start();
+        while ( true )
+        {
+            read.addAndGet( reader.read( buffer, 0, buffer.length, DONT ) );
+        }
+    }
+
+    private CharReadable endlessStreamOfRandomStuff( final ValueType... types )
+    {
+        return new CharReadable()
         {
             // Contains only one line
             private final CharBuffer temp = CharBuffer.wrap( new char[1000] );
@@ -104,22 +148,25 @@ public class CharSeekerPerformanceTest
             {
                 temp.limit( 0 );
             }
+            private long totalRead;
 
             @Override
-            public int read( CharBuffer cb ) throws IOException
+            public int read( char[] buffer, int offset, int length, SourceMonitor monitor ) throws IOException
             {
-                while ( cb.hasRemaining() )
-                {
-                    if ( !temp.hasRemaining() )
-                    {
-                        fillOneRowIntoTemp();
-                    }
-                    int charsToWrite = min( cb.remaining(), temp.remaining() );
-                    cb.put( temp.array(), temp.position(), charsToWrite );
-                    temp.position( temp.position() + charsToWrite );
-                }
-                // We can assume here that we always fill the buffer up
-                return cb.capacity();
+//                int cursor = 0;
+//                while ( cursor < length )
+//                {
+//                    if ( !temp.hasRemaining() )
+//                    {
+//                        fillOneRowIntoTemp();
+//                    }
+//                    int charsToWrite = min( length-cursor, temp.remaining() );
+//                    temp.get( buffer, cursor, charsToWrite );
+//                    cursor += charsToWrite;
+//                }
+//                // We can assume here that we always fill the buffer up
+//                totalRead += length;
+                return length;
             }
 
             private void fillOneRowIntoTemp()
@@ -136,6 +183,17 @@ public class CharSeekerPerformanceTest
                 }
                 temp.put( '\n' );
                 temp.flip();
+            }
+
+            @Override
+            public void close() throws IOException
+            {   // Nothing to close
+            }
+
+            @Override
+            public long position()
+            {
+                return totalRead;
             }
         };
     }

@@ -20,21 +20,20 @@
 package qa;
 
 import org.junit.Test;
+import qa.perf.GraphDatabaseTarget;
+import qa.perf.Operation;
+import qa.perf.Performance;
 
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.tooling.GlobalGraphOperations;
 
-import qa.perf.GraphDatabaseTarget;
-import qa.perf.Operation;
-import qa.perf.Performance;
+import static qa.perf.Operations.single;
 
 import static java.util.concurrent.TimeUnit.MINUTES;
 
 import static org.neo4j.graphdb.DynamicLabel.label;
 import static org.neo4j.helpers.collection.Iterables.first;
-
-import static qa.perf.Operations.single;
 
 public class CreateLabeledNodesPerformanceTest
 {

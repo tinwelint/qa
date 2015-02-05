@@ -19,9 +19,9 @@
  */
 package qa;
 
-import java.util.concurrent.CountDownLatch;
-
 import org.junit.Test;
+
+import java.util.concurrent.CountDownLatch;
 
 import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.cypher.javacompat.ExecutionResult;

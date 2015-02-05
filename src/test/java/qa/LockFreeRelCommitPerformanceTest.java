@@ -1,16 +1,15 @@
 package qa;
 
 import org.junit.Test;
+import qa.perf.GraphDatabaseTarget;
+import qa.perf.Operation;
+import qa.perf.Operations;
+import qa.perf.Performance;
 
 import org.neo4j.graphdb.DynamicRelationshipType;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.graphdb.Transaction;
-
-import qa.perf.GraphDatabaseTarget;
-import qa.perf.Operation;
-import qa.perf.Operations;
-import qa.perf.Performance;
 
 public class LockFreeRelCommitPerformanceTest
 {

@@ -19,9 +19,9 @@
  */
 package qa;
 
-import java.io.File;
-
 import org.junit.Test;
+
+import java.io.File;
 
 import org.neo4j.csv.reader.CharSeeker;
 import org.neo4j.csv.reader.Mark;

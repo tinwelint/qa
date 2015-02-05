@@ -20,12 +20,12 @@
 package qa;
 
 import org.junit.Test;
-
-import org.neo4j.graphdb.Transaction;
-
 import qa.perf.GraphDatabaseTarget;
 import qa.perf.Operation;
 import qa.perf.Performance;
+
+import org.neo4j.graphdb.Transaction;
+
 import static qa.perf.Operations.single;
 
 public class PerformanceJavaAPITest

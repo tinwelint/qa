@@ -21,19 +21,30 @@ package qa.perf;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
+import org.neo4j.helpers.collection.MapUtil;
 import org.neo4j.io.fs.FileUtils;
 
 public class GraphDatabaseTarget implements Target
 {
     public GraphDatabaseService db;
+    private final Map<String,String> config;
+
+    public GraphDatabaseTarget( String... config )
+    {
+        this.config = MapUtil.stringMap( config );
+    }
 
     @Override
     public void start() throws IOException
     {
-        db = new GraphDatabaseFactory().newEmbeddedDatabase( clear( "target/test-data/performance-tests" ) );
+        db = new GraphDatabaseFactory()
+                .newEmbeddedDatabaseBuilder( clear( "target/test-data/performance-tests" ) )
+                .setConfig( config )
+                .newGraphDatabase();
     }
 
     private String clear( String string ) throws IOException

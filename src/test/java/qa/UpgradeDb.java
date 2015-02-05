@@ -24,10 +24,6 @@ import org.junit.Test;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 import org.neo4j.kernel.GraphDatabaseAPI;
-import org.neo4j.kernel.impl.store.NeoStore;
-import org.neo4j.kernel.impl.store.NodeStore;
-import org.neo4j.kernel.impl.store.record.NodeRecord;
-import org.neo4j.kernel.impl.transaction.state.NeoStoreProvider;
 
 import static java.lang.System.currentTimeMillis;
 
@@ -40,7 +36,7 @@ public class UpgradeDb
         long time = currentTimeMillis();
 
         // WHEN
-        GraphDatabaseAPI db = (GraphDatabaseAPI) new GraphDatabaseFactory().newEmbeddedDatabaseBuilder( "randomdb" )
+        GraphDatabaseAPI db = (GraphDatabaseAPI) new GraphDatabaseFactory().newEmbeddedDatabaseBuilder( "empty-db" )
                 .setConfig( GraphDatabaseSettings.allow_store_upgrade.name(), "true" )
                 .newGraphDatabase();
         time = currentTimeMillis()-time;
@@ -52,20 +48,20 @@ public class UpgradeDb
         db.shutdown();
     }
 
-    private void printDenseNodeCount( GraphDatabaseAPI db )
-    {
-        NeoStore neoStore = db.getDependencyResolver().resolveDependency( NeoStoreProvider.class ).evaluate();
-        NodeStore nodeStore = neoStore.getNodeStore();
-        long high = nodeStore.getHighestPossibleIdInUse();
-        int dense = 0;
-        for ( long i = 0; i < high; i++ )
-        {
-            NodeRecord record = nodeStore.forceGetRaw( i );
-            if ( record.isDense() )
-            {
-                dense++;
-            }
-        }
-        System.out.println( "dense count:" + dense );
-    }
+//    private void printDenseNodeCount( GraphDatabaseAPI db )
+//    {
+//        NeoStore neoStore = db.getDependencyResolver().resolveDependency( NeoStoreProvider.class ).evaluate();
+//        NodeStore nodeStore = neoStore.getNodeStore();
+//        long high = nodeStore.getHighestPossibleIdInUse();
+//        int dense = 0;
+//        for ( long i = 0; i < high; i++ )
+//        {
+//            NodeRecord record = nodeStore.forceGetRaw( i );
+//            if ( record.isDense() )
+//            {
+//                dense++;
+//            }
+//        }
+//        System.out.println( "dense count:" + dense );
+//    }
 }

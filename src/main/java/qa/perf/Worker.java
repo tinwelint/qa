@@ -49,7 +49,7 @@ public class Worker<T extends Target> extends Thread
         }
     }
 
-    public synchronized int getCompletedCount()
+    public int getCompletedCount()
     {
         return completedCount;
     }

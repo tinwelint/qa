@@ -19,12 +19,12 @@
  */
 package qa;
 
-import java.io.File;
-import java.io.IOException;
-
 import org.apache.lucene.index.CheckIndex;
 import org.apache.lucene.index.CheckIndex.Status;
 import org.apache.lucene.store.FSDirectory;
+
+import java.io.File;
+import java.io.IOException;
 
 public class FixIndex
 {

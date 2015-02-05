@@ -20,12 +20,13 @@
 package qa;
 
 import org.junit.Test;
-
-import org.neo4j.graphdb.Transaction;
-
 import qa.perf.GraphDatabaseTarget;
 import qa.perf.Operation;
 import qa.perf.Performance;
+
+import org.neo4j.graphdb.Transaction;
+import org.neo4j.graphdb.factory.GraphDatabaseSettings;
+
 import static qa.perf.Operations.single;
 
 public class BatchedWritesTest
@@ -33,7 +34,8 @@ public class BatchedWritesTest
     @Test
     public void shouldPerform() throws Exception
     {
-        GraphDatabaseTarget target = new GraphDatabaseTarget();
+        GraphDatabaseTarget target = new GraphDatabaseTarget(
+                GraphDatabaseSettings.logical_log_rotation_threshold.name(), "10" );
         Operation<GraphDatabaseTarget> op = new Operation<GraphDatabaseTarget>()
         {
             @Override
@@ -47,6 +49,6 @@ public class BatchedWritesTest
             }
         };
 
-        Performance.measure( target, op, single( op ), 200, 60 );
+        Performance.measure( target, op, single( op ), 250, 1800 );
     }
 }

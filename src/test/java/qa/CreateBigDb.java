@@ -19,10 +19,10 @@
  */
 package qa;
 
+import org.junit.Test;
+
 import java.io.File;
 import java.util.Random;
-
-import org.junit.Test;
 
 import org.neo4j.io.fs.FileUtils;
 import org.neo4j.kernel.impl.MyRelTypes;

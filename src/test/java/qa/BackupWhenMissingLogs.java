@@ -19,12 +19,12 @@
  */
 package qa;
 
+import org.junit.Test;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Set;
-
-import org.junit.Test;
 
 import org.neo4j.backup.BackupTool;
 import org.neo4j.backup.OnlineBackup;
@@ -35,7 +35,7 @@ import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 import org.neo4j.helpers.collection.PrefetchingIterator;
 import org.neo4j.kernel.GraphDatabaseAPI;
-import org.neo4j.kernel.impl.transaction.state.DataSourceManager;
+import org.neo4j.kernel.impl.transaction.log.LogRotation;
 import org.neo4j.test.TargetDirectory;
 
 import static org.neo4j.helpers.collection.IteratorUtil.asSet;
@@ -91,7 +91,14 @@ public class BackupWhenMissingLogs
                     switch ( line )
                     {
                     case "batch":
-                        createTransactionBatchAndRotate( db );
+                        try
+                        {
+                            createTransactionBatchAndRotate( db );
+                        }
+                        catch ( IOException e )
+                        {
+                            throw new RuntimeException( e );
+                        }
                         System.out.println( "Created a batch" );
                         break;
                     }
@@ -102,13 +109,13 @@ public class BackupWhenMissingLogs
         db.shutdown();
     }
 
-    protected static void createTransactionBatchAndRotate( GraphDatabaseAPI db )
+    protected static void createTransactionBatchAndRotate( GraphDatabaseAPI db ) throws IOException
     {
         for ( int i = 0; i < 10; i++ )
         {
             createTransaction( db );
         }
-        db.getDependencyResolver().resolveDependency( DataSourceManager.class ).rotateLogicalLogs();
+        db.getDependencyResolver().resolveDependency( LogRotation.class ).rotateLogFile();
     }
 
     private static void createTransaction( GraphDatabaseService db )

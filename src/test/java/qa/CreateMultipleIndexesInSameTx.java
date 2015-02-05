@@ -19,9 +19,9 @@
  */
 package qa;
 
-import java.util.concurrent.TimeUnit;
-
 import org.junit.Test;
+
+import java.util.concurrent.TimeUnit;
 
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Label;

@@ -19,9 +19,9 @@
  */
 package qa;
 
-import java.io.File;
-
 import org.junit.Test;
+
+import java.io.File;
 
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Label;

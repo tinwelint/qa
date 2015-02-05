@@ -26,7 +26,10 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class Performance
 {
-    public static <T extends Target> void measure( T target, Operation<T> initial,
+    /**
+     * @return ops/ms
+     */
+    public static <T extends Target> double measure( T target, Operation<T> initial,
             OperationSet<T> operation, int threads, long durationSeconds ) throws Exception
     {
         target.start();
@@ -61,6 +64,7 @@ public class Performance
             long actualDuration = currentTimeMillis()-startTime;
             double opsPerMilli = (double) totalCount / (double) actualDuration;
             System.out.println( opsPerMilli + " ops/ms" );
+            return opsPerMilli;
         }
         finally
         {

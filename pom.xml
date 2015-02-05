@@ -30,11 +30,11 @@
   </build>
 
   <dependencies>
-<!--     <dependency> -->
-<!--       <groupId>org.neo4j</groupId> -->
-<!--       <artifactId>neo4j-enterprise</artifactId> -->
-<!--       <version>${neo4j.version}</version> -->
-<!--     </dependency> -->
+    <dependency>
+      <groupId>org.neo4j</groupId>
+      <artifactId>neo4j-enterprise</artifactId>
+      <version>${neo4j.version}</version>
+    </dependency>
 <!--     <dependency> -->
 <!--       <groupId>org.neo4j</groupId> -->
 <!--       <artifactId>neo4j-shell</artifactId> -->
@@ -53,14 +53,14 @@
         <artifactId>neo4j-kernel</artifactId>
         <version>${neo4j.version}</version>
     </dependency>
-<!--     <dependency> -->
-<!--         <groupId>org.neo4j</groupId> -->
-<!--         <artifactId>neo4j-ha</artifactId> -->
-<!--         <version>${neo4j.version}</version> -->
-<!--         <type>test-jar</type> -->
-<!--         <classifier>tests</classifier> -->
-<!--         <scope>test</scope> -->
-<!--     </dependency> -->
+    <dependency>
+        <groupId>org.neo4j</groupId>
+        <artifactId>neo4j-ha</artifactId>
+        <version>${neo4j.version}</version>
+        <type>test-jar</type>
+        <classifier>tests</classifier>
+        <scope>test</scope>
+    </dependency>
 <!--     <dependency> -->
 <!--       <groupId>org.neo4j</groupId> -->
 <!--       <artifactId>neo4j-io</artifactId> -->
@@ -68,6 +68,13 @@
 <!--       <type>test-jar</type> -->
 <!--       <scope>test</scope> -->
 <!--     </dependency> -->
+    <dependency>
+      <groupId>org.neo4j</groupId>
+      <artifactId>neo4j-primitive-collections</artifactId>
+      <version>${neo4j.version}</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
@@ -92,6 +99,11 @@
       <groupId>commons-codec</groupId>
       <artifactId>commons-codec</artifactId>
       <version>1.8</version>
+    </dependency>
+    <dependency>
+      <groupId>org.roaringbitmap</groupId>
+      <artifactId>RoaringBitmap</artifactId>
+      <version>0.4.8</version>
     </dependency>
   </dependencies>
 </project>
