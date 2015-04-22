@@ -32,7 +32,7 @@ import org.neo4j.csv.reader.CharSeeker;
 import org.neo4j.csv.reader.Extractor;
 import org.neo4j.csv.reader.Extractors;
 import org.neo4j.csv.reader.Mark;
-import org.neo4j.csv.reader.SourceMonitor;
+import org.neo4j.csv.reader.SectionedCharBuffer;
 import org.neo4j.csv.reader.ThreadAheadReadable;
 
 import static org.junit.Assert.assertTrue;
@@ -41,7 +41,6 @@ import static java.lang.System.currentTimeMillis;
 
 import static org.neo4j.csv.reader.BufferedCharSeeker.DEFAULT_BUFFER_SIZE;
 import static org.neo4j.csv.reader.CharSeekers.charSeeker;
-import static org.neo4j.csv.reader.SourceMonitor.DONT;
 import static org.neo4j.helpers.Format.bytes;
 import static org.neo4j.helpers.Format.duration;
 
@@ -59,7 +58,6 @@ public class CharSeekerPerformanceTest
         CharSeeker seeker = charSeeker( reader, DEFAULT_BUFFER_SIZE, true, QUOTE );
         Mark mark = new Mark();
         Extractors extractors = new Extractors( ',' );
-        int[] delimiter = new int[] {DELIMITER};
 
         // WHEN
         final long startTime = currentTimeMillis();
@@ -91,7 +89,7 @@ public class CharSeekerPerformanceTest
         {
             for ( ValueType type : types )
             {
-                assertTrue( seeker.seek( mark, delimiter ) );
+                assertTrue( seeker.seek( mark, DELIMITER ) );
 //                System.out.println( seeker.extract( mark, type.extractor( extractors ) ).value() );
             }
             assertTrue( mark.isEndOfLine() );
@@ -108,7 +106,7 @@ public class CharSeekerPerformanceTest
                 DEFAULT_BUFFER_SIZE );
 
         // WHEN
-        char[] buffer = new char[DEFAULT_BUFFER_SIZE];
+        SectionedCharBuffer buffer = new SectionedCharBuffer( DEFAULT_BUFFER_SIZE );
         final AtomicLong read = new AtomicLong();
         final long startTime = currentTimeMillis();
         Thread stats = new Thread()
@@ -134,13 +132,14 @@ public class CharSeekerPerformanceTest
         stats.start();
         while ( true )
         {
-            read.addAndGet( reader.read( buffer, 0, buffer.length, DONT ) );
+            buffer = reader.read( buffer, buffer.pivot() );
+            read.addAndGet( buffer.available() );
         }
     }
 
     private CharReadable endlessStreamOfRandomStuff( final ValueType... types )
     {
-        return new CharReadable()
+        return new CharReadable.Adapter()
         {
             // Contains only one line
             private final CharBuffer temp = CharBuffer.wrap( new char[1000] );
@@ -151,7 +150,7 @@ public class CharSeekerPerformanceTest
             private long totalRead;
 
             @Override
-            public int read( char[] buffer, int offset, int length, SourceMonitor monitor ) throws IOException
+            public SectionedCharBuffer read( SectionedCharBuffer buffer, int from ) throws IOException
             {
 //                int cursor = 0;
 //                while ( cursor < length )
@@ -166,7 +165,8 @@ public class CharSeekerPerformanceTest
 //                }
 //                // We can assume here that we always fill the buffer up
 //                totalRead += length;
-                return length;
+//                return length;
+                throw new UnsupportedOperationException();
             }
 
             private void fillOneRowIntoTemp()
@@ -186,14 +186,15 @@ public class CharSeekerPerformanceTest
             }
 
             @Override
-            public void close() throws IOException
-            {   // Nothing to close
-            }
-
-            @Override
             public long position()
             {
                 return totalRead;
+            }
+
+            @Override
+            public String sourceDescription()
+            {
+                return "source";
             }
         };
     }

@@ -25,14 +25,17 @@ import java.io.IOException;
 import org.neo4j.collection.primitive.PrimitiveLongCollections;
 import org.neo4j.collection.primitive.PrimitiveLongIterator;
 import org.neo4j.csv.reader.CharSeeker;
-import org.neo4j.csv.reader.CharSeekers;
 import org.neo4j.csv.reader.Extractors;
 import org.neo4j.csv.reader.Mark;
-import org.neo4j.csv.reader.Readables;
+
+import static java.nio.charset.Charset.defaultCharset;
+
+import static org.neo4j.csv.reader.CharSeekers.charSeeker;
+import static org.neo4j.csv.reader.Readables.files;
 
 public class CheckLdbcExternalPropertiesOrder
 {
-    private static int[] delim = new int[] {'|'};
+    private static int delim = '|';
     private static Extractors extractors = new Extractors( ';' );
 
     public static void main( String[] args ) throws IOException
@@ -104,7 +107,7 @@ public class CheckLdbcExternalPropertiesOrder
 
     private static PrimitiveLongIterator ids( final File file ) throws IOException
     {
-        final CharSeeker seeker = CharSeekers.charSeeker( Readables.file( file ), '"' );
+        final CharSeeker seeker = charSeeker( files( defaultCharset(), file ), '"' );
         final Mark mark = new Mark();
         skipLine( seeker, mark );
         return new PrimitiveLongCollections.PrimitiveLongBaseIterator()
@@ -136,8 +139,7 @@ public class CheckLdbcExternalPropertiesOrder
 
     private static void skipLine( CharSeeker seeker, Mark mark ) throws IOException
     {
-        int[] delim = new int[0];
-        while ( seeker.seek( mark, delim ) )
+        while ( seeker.seek( mark, (char) 0 ) )
         {
             if ( mark.isEndOfLine() )
             {
