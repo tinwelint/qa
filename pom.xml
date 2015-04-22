@@ -14,7 +14,7 @@
   <url>http://neo4j.org</url>
 
   <properties>
-    <neo4j.version>2.2-SNAPSHOT</neo4j.version>
+    <neo4j.version>2.2.2-SNAPSHOT</neo4j.version>
   </properties>
 
   <build>
