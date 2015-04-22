@@ -106,7 +106,7 @@ public class LazyIndexUpdatesTest
 
         // WHEN
         boolean worrying = false;
-        for ( int i = 0; i < 100_000; i++ )
+        for ( int i = 0; i < 1000; i++ )
         {
             try ( Transaction tx = db.beginTx() )
             {
@@ -136,6 +136,7 @@ public class LazyIndexUpdatesTest
                     // thing. The index updates rely on reading node properties from the store in some scenarios
                     // and that will be wrong if we can't find the properties in the store.
 
+                    e.printStackTrace();
                     System.out.println( "Found something weird, let's CC have a crack at it right away" );
                     worrying = true;
                     break;
@@ -180,20 +181,22 @@ public class LazyIndexUpdatesTest
         int props = random.intBetween( 1, 2 );
         for ( int i = 0; i < props; i++ )
         {
-            node.setProperty( random.among( KEYS ), random.propertyValue() );
+            node.setProperty( random.among( KEYS, 1, KEYS.length-1 ), random.propertyValue() );
         }
     }
 
     private void createNewNode( GraphDatabaseService db )
     {
         Node node = db.createNode( random.selection( Labels.values(), 0, 3, false ) );
-        node.setProperty( mainKey, nodeIndexValue( node ) );
+        try
+        {
+            node.setProperty( mainKey, node.getId() );
+        }
+        catch ( ConstraintViolationException e )
+        {
+            throw new RuntimeException( e );
+        }
         highestNodeId = (int) node.getId();
-    }
-
-    private Object nodeIndexValue( Node node )
-    {
-        return node.getId();
     }
 
     private void addLabelsToNode( GraphDatabaseService db )
@@ -213,7 +216,7 @@ public class LazyIndexUpdatesTest
     private void removeLabelsFromNode( GraphDatabaseService db )
     {
         Node node = randomNode( db );
-        for ( Label label : random.selection( Labels.values(), 1, 2, false ) )
+        for ( Label label : random.selection( Labels.values(), 1, 4, false ) )
         {
             node.removeLabel( label );
         }
