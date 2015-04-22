@@ -21,16 +21,24 @@ package qa.perf;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.neo4j.helpers.Provider;
+
 import static java.lang.System.currentTimeMillis;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class Performance
 {
+    public static <T extends Target> double measure( T target, Operation<T> initial,
+            Provider<Operation<T>> operation, int threads, long durationSeconds ) throws Exception
+    {
+        return measure( target, initial, operation, 50, threads, durationSeconds );
+    }
+
     /**
      * @return ops/ms
      */
     public static <T extends Target> double measure( T target, Operation<T> initial,
-            OperationSet<T> operation, int threads, long durationSeconds ) throws Exception
+            Provider<Operation<T>> operation, int batchSize, int threads, long durationSeconds ) throws Exception
     {
         target.start();
         try
@@ -43,7 +51,7 @@ public class Performance
             AtomicBoolean end = new AtomicBoolean();
             for ( int i = 0; i < threads; i++ )
             {
-                workers[i] = new Worker<>( target, operation, end );
+                workers[i] = new Worker<>( target, operation, batchSize, end );
                 workers[i].start();
             }
 

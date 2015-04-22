@@ -19,6 +19,11 @@
  */
 package qa.perf;
 
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
+
+import org.neo4j.helpers.Provider;
+
 public class Operations
 {
     private Operations()
@@ -26,21 +31,58 @@ public class Operations
         throw new AssertionError();
     }
 
-    public static <T extends Target> OperationSet<T> single( final Operation<T> operation )
+    public static <T extends Target> Provider<Operation<T>> single( final Operation<T> operation )
     {
-        return new OperationSet<T>()
+        return new Provider<Operation<T>>()
         {
             @Override
-            public void perform( T on )
-            {
-                operation.perform( on );
-            }
-
-            @Override
-            public Operation<T> at( float value )
+            public Operation<T> instance()
             {
                 return operation;
             }
         };
+    }
+
+    public static <T extends Target> Provider<Operation<T>> multipleRandom(
+            Object... alternatingOperationAndChance )
+    {
+        return multipleRandom( ThreadLocalRandom.current(), alternatingOperationAndChance );
+    }
+
+    public static <T extends Target> Provider<Operation<T>> multipleRandom( final Random random,
+            final Object... alternatingOperationAndChance )
+    {
+        final int totalChance = totalChance( alternatingOperationAndChance );
+        return new Provider<Operation<T>>()
+        {
+            @Override
+            public Operation<T> instance()
+            {
+                float selection = random.nextFloat();
+                int collectiveChance = 0;
+                for ( int i = 0; i < alternatingOperationAndChance.length; i++ )
+                {
+                    @SuppressWarnings( "unchecked" )
+                    Operation<T> candidateOperation = (Operation<T>) alternatingOperationAndChance[i++];
+                    collectiveChance += ((Number)alternatingOperationAndChance[i]).intValue();
+                    float candidateChance = (float) collectiveChance / (float) totalChance;
+                    if ( candidateChance >= selection )
+                    {
+                        return candidateOperation;
+                    }
+                }
+                throw new IllegalStateException( "Should not happen" );
+            }
+        };
+    }
+
+    private static int totalChance( Object... alternatingOperationAndChance )
+    {
+        int totalChance = 0;
+        for ( int i = 1; i < alternatingOperationAndChance.length; i += 2 )
+        {
+            totalChance += ((Number)alternatingOperationAndChance[i]).intValue();
+        }
+        return totalChance;
     }
 }
