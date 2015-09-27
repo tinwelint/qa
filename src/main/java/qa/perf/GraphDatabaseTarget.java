@@ -42,7 +42,7 @@ public class GraphDatabaseTarget implements Target
     public void start() throws IOException
     {
         db = new GraphDatabaseFactory()
-                .newEmbeddedDatabaseBuilder( clear( "target/test-data/performance-tests" ) )
+                .newEmbeddedDatabaseBuilder( clear( DEFAULT_DIR ) )
                 .setConfig( config )
                 .newGraphDatabase();
     }

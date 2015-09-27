@@ -81,7 +81,8 @@ public class CreateRandomDb
         }
         finally
         {
-            db.shutdown();
+            System.exit( 1 );
+//            db.shutdown();
         }
     }
 

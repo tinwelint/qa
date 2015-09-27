@@ -21,6 +21,8 @@ package qa.perf;
 
 public interface Target
 {
+    String DEFAULT_DIR = "target/test-data/performance-tests";
+
     void start() throws Exception;
 
     void stop();

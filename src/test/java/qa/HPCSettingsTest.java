@@ -17,19 +17,25 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package qa.temp;
+package qa;
 
-import java.io.IOException;
+import org.junit.Test;
 
-/**
- * This class exists so that this qa project, which might have a different version than the one
- * currently checked out in git in the neo4j repo, and will just start the DumpLogicalLog class¨
- * for the neo4j version that this qa project specifies.
- */
-public class DumpLogicalLog
+import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.factory.GraphDatabaseFactory;
+import org.neo4j.kernel.impl.cache.HighPerformanceCacheSettings;
+
+public class HPCSettingsTest
 {
-    public static void main( String[] args ) throws IOException
+    @Test
+    public void shouldTest() throws Exception
     {
-        org.neo4j.kernel.impl.util.DumpLogicalLog.main( args );
+        // GIVEN
+        GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder( "target/hpc" )
+                .setConfig( HighPerformanceCacheSettings.node_cache_array_fraction, "10" )
+                .newGraphDatabase();
+
+        // WHEN
+        db.shutdown();
     }
 }

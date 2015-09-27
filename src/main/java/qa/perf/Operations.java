@@ -43,6 +43,17 @@ public class Operations
         };
     }
 
+    public static <T extends Target> Operation<T> noop()
+    {
+        return new Operation<T>()
+        {
+            @Override
+            public void perform( T on )
+            {   // No-op
+            }
+        };
+    }
+
     public static <T extends Target> Provider<Operation<T>> multipleRandom(
             Object... alternatingOperationAndChance )
     {

@@ -181,7 +181,7 @@ public class LazyIndexUpdatesTest
         int props = random.intBetween( 1, 2 );
         for ( int i = 0; i < props; i++ )
         {
-            node.setProperty( random.among( KEYS, 1, KEYS.length-1 ), random.propertyValue() );
+            node.setProperty( random.among( KEYS ), random.propertyValue() );
         }
     }
 
