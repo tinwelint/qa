@@ -1,3 +1,22 @@
+/**
+ * Copyright (c) 2002-2015 "Neo Technology,"
+ * Network Engine for Objects in Lund AB [http://neotechnology.com]
+ *
+ * This file is part of Neo4j.
+ *
+ * Neo4j is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 package tooling;
 
 import java.io.File;
@@ -15,7 +34,7 @@ import org.neo4j.shell.ShellSettings;
 
 public class StartClusterMaster
 {
-    public static final String ip = "192.168.1.85";
+    public static final String ip = "172.16.13.47";
     private static final String dir = "C:\\Users\\Matilas\\Desktop\\master";
 
     public static void main( String[] args ) throws Exception
@@ -36,7 +55,7 @@ public class StartClusterMaster
 
         System.out.println( "up, ENTER for starting load" );
         System.in.read();
-        Future<Object> load = new SillyLoad( db, 30, 0 );
+        Future<Object> load = new SillyLoad( db, 30, 1000 );
         System.out.println( "loading, ENTER for shutdown" );
         System.in.skip( System.in.available() );
         System.in.read();

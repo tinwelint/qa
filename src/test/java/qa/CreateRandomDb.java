@@ -41,7 +41,11 @@ public class CreateRandomDb
 
     public static void main( String[] args ) throws IOException
     {
-        GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase( cleared( "randomdb" ) );
+        GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase(
+//                cleared(
+                        "randomdb"
+//                        )
+                );
         try
         {
             Node[] nodes = new Node[10_000];

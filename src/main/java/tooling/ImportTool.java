@@ -19,16 +19,12 @@
  */
 package tooling;
 
-import org.neo4j.graphdb.factory.GraphDatabaseFactory;
-import org.neo4j.graphdb.factory.GraphDatabaseSettings;
+import java.io.IOException;
 
-public class UpgradeDb
+public class ImportTool
 {
-    public static void main( String[] args )
+    public static void main( String[] args ) throws IOException
     {
-        new GraphDatabaseFactory().newEmbeddedDatabaseBuilder( args[0] )
-                .setConfig( GraphDatabaseSettings.allow_store_upgrade, "true" )
-                .newGraphDatabase()
-                .shutdown();
+        org.neo4j.tooling.ImportTool.main( args );
     }
 }

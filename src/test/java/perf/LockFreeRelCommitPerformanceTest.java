@@ -17,49 +17,47 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package qa;
+package perf;
 
 import org.junit.Test;
 import qa.perf.GraphDatabaseTarget;
 import qa.perf.Operation;
+import qa.perf.Operations;
 import qa.perf.Performance;
 
-import org.neo4j.graphdb.Label;
+import org.neo4j.graphdb.DynamicRelationshipType;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.graphdb.Transaction;
-import org.neo4j.tooling.GlobalGraphOperations;
 
-import static qa.perf.Operations.single;
-
-import static java.util.concurrent.TimeUnit.MINUTES;
-
-import static org.neo4j.graphdb.DynamicLabel.label;
-import static org.neo4j.helpers.collection.Iterables.first;
-
-public class CreateLabeledNodesPerformanceTest
+public class LockFreeRelCommitPerformanceTest
 {
     @Test
-    public void shouldMeasurePerformance() throws Exception
+    public void shouldPerfTest() throws Exception
     {
         GraphDatabaseTarget target = new GraphDatabaseTarget();
-        Operation<GraphDatabaseTarget> createLabeledNode = new Operation<GraphDatabaseTarget>()
+        Operation<GraphDatabaseTarget> commit = new Operation<GraphDatabaseTarget>()
         {
-            private final Label me = label( "Me" );
+            private final RelationshipType[] types = new RelationshipType[] {
+                    DynamicRelationshipType.withName( "TYPE1" ),
+                    DynamicRelationshipType.withName( "TYPE2" ),
+                    DynamicRelationshipType.withName( "TYPE3" ),
+            };
 
             @Override
             public void perform( GraphDatabaseTarget on )
             {
                 try ( Transaction tx = on.db.beginTx() )
                 {
-                    on.db.createNode( me ); // me.... me, me, meee
-                    tx.success();
-                }
-                try ( Transaction tx = on.db.beginTx() )
-                {
-                    first( GlobalGraphOperations.at( on.db ).getAllNodesWithLabel( me ) );
+                    Node node = on.db.createNode();
+                    for ( int i = 0; i < 10; i++ )
+                    {
+                        node.createRelationshipTo( on.db.createNode(), types[i%types.length] );
+                    }
                     tx.success();
                 }
             }
         };
-        Performance.measure( target, null, single( createLabeledNode ), 4, MINUTES.toSeconds( 2 ) );
+        Performance.measure( target, null, Operations.single( commit ), 1, 60 );
     }
 }

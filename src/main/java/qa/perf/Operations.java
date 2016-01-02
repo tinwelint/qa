@@ -21,8 +21,7 @@ package qa.perf;
 
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
-
-import org.neo4j.helpers.Provider;
+import java.util.function.Supplier;
 
 public class Operations
 {
@@ -31,12 +30,12 @@ public class Operations
         throw new AssertionError();
     }
 
-    public static <T extends Target> Provider<Operation<T>> single( final Operation<T> operation )
+    public static <T extends Target> Supplier<Operation<T>> single( final Operation<T> operation )
     {
-        return new Provider<Operation<T>>()
+        return new Supplier<Operation<T>>()
         {
             @Override
-            public Operation<T> instance()
+            public Operation<T> get()
             {
                 return operation;
             }
@@ -54,20 +53,20 @@ public class Operations
         };
     }
 
-    public static <T extends Target> Provider<Operation<T>> multipleRandom(
+    public static <T extends Target> Supplier<Operation<T>> multipleRandom(
             Object... alternatingOperationAndChance )
     {
         return multipleRandom( ThreadLocalRandom.current(), alternatingOperationAndChance );
     }
 
-    public static <T extends Target> Provider<Operation<T>> multipleRandom( final Random random,
+    public static <T extends Target> Supplier<Operation<T>> multipleRandom( final Random random,
             final Object... alternatingOperationAndChance )
     {
         final int totalChance = totalChance( alternatingOperationAndChance );
-        return new Provider<Operation<T>>()
+        return new Supplier<Operation<T>>()
         {
             @Override
-            public Operation<T> instance()
+            public Operation<T> get()
             {
                 float selection = random.nextFloat();
                 int collectiveChance = 0;

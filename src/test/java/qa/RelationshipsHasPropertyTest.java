@@ -17,43 +17,39 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package tooling;
+package qa;
 
-import java.io.IOException;
-
-import org.neo4j.graphdb.DynamicLabel;
+import org.neo4j.graphdb.DynamicRelationshipType;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
-import org.neo4j.graphdb.factory.GraphDatabaseSettings;
-import org.neo4j.helpers.Settings;
+import org.neo4j.tooling.GlobalGraphOperations;
 
-public class StartStopDb
+public class RelationshipsHasPropertyTest
 {
-    public static void main( String[] args ) throws IOException
+    public static void main( String[] args )
     {
-        GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder( args[0] )
-                .setConfig( GraphDatabaseSettings.allow_store_upgrade, Settings.TRUE )
-                .newGraphDatabase();
-
-//        System.in.read();
-        doSomeTransactions( db );
-
-        db.shutdown();
-    }
-
-    private static void doSomeTransactions( GraphDatabaseService db )
-    {
+        RelationshipType FRIEND = DynamicRelationshipType.withName( "FRIEND" );
+        GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase( args[0] );
         try ( Transaction tx = db.beginTx() )
         {
-            for ( int i = 0; i < 10; i++ )
+            long i = 0;
+            for ( Relationship rel : GlobalGraphOperations.at( db ).getAllRelationships() )
             {
-                Node node = db.createNode();
-                node.addLabel( DynamicLabel.label( "label-" + i ) );
-                node.setProperty( "key-" + i, i );
+                if ( rel.isType( FRIEND ) && !rel.hasProperty( "since" ) )
+                {
+                    System.out.println( rel );
+                }
+                i++;
+                if ( i % 1_000_000 == 0 )
+                {
+                    System.out.println( i );
+                }
             }
             tx.success();
         }
+        db.shutdown();
     }
 }

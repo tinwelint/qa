@@ -19,16 +19,24 @@
  */
 package tooling;
 
+import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
+import org.neo4j.helpers.Settings;
+import org.neo4j.shell.ShellSettings;
 
-public class UpgradeDb
+import static org.neo4j.helpers.SillyUtils.ignore;
+
+public class StartDbWithShell
 {
-    public static void main( String[] args )
+    public static void main( String[] args ) throws Exception
     {
-        new GraphDatabaseFactory().newEmbeddedDatabaseBuilder( args[0] )
-                .setConfig( GraphDatabaseSettings.allow_store_upgrade, "true" )
-                .newGraphDatabase()
-                .shutdown();
+        String path = args.length > 0 ? args[0] : "target/test-data/shell-db";
+        GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder( path )
+                .setConfig( ShellSettings.remote_shell_enabled, Settings.TRUE )
+                .setConfig( GraphDatabaseSettings.allow_store_upgrade, Settings.TRUE ).newGraphDatabase();
+        System.out.println( "db " + path + " started, ENTER to quit" );
+        ignore( System.in.read() );
+        db.shutdown();
     }
 }

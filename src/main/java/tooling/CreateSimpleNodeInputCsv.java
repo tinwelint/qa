@@ -17,25 +17,26 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package qa;
+package tooling;
 
-import org.junit.Test;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.factory.GraphDatabaseFactory;
-import org.neo4j.kernel.impl.cache.HighPerformanceCacheSettings;
-
-public class HPCSettingsTest
+public class CreateSimpleNodeInputCsv
 {
-    @Test
-    public void shouldTest() throws Exception
+    public static void main( String[] args ) throws FileNotFoundException
     {
-        // GIVEN
-        GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder( "target/hpc" )
-                .setConfig( HighPerformanceCacheSettings.node_cache_array_fraction, "10" )
-                .newGraphDatabase();
-
-        // WHEN
-        db.shutdown();
+        File file = new File( "simple-nodes.csv" );
+        long target = 1024L*1024L*1024L*3L;
+        try ( PrintStream out = new PrintStream( new BufferedOutputStream( new FileOutputStream( file ) ) ) )
+        {
+            for ( int i = 1; i < 2_000_000_000; i++ )
+            {
+                out.println( i + "|Author" );
+            }
+        }
     }
 }

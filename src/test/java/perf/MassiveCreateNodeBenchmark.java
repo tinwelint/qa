@@ -17,43 +17,41 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package qa;
+package perf;
 
-import org.junit.Rule;
 import org.junit.Test;
+import qa.perf.GraphDatabaseTarget;
+import qa.perf.Operation;
+import qa.perf.Performance;
 
-import org.neo4j.test.DatabaseRule;
-import org.neo4j.test.EmbeddedDatabaseRule;
-import org.neo4j.test.Race;
+import org.neo4j.graphdb.Transaction;
 
-public class ZD2489
+public class MassiveCreateNodeBenchmark
 {
-    public final @Rule DatabaseRule dbr = new EmbeddedDatabaseRule();
-
     @Test
-    public void shouldSeeWhereTheExceptionComesFrom() throws Throwable
+    public void shouldmeasureStuff() throws Exception
     {
-        while ( true )
-        {
-            // Set up
-            dbr.execute( "CREATE (n:YO)" );
-
-            // Try to trigger
-            Race race = new Race();
-            race.addContestant( execute( "MATCH (n:YO) SET n.property = 10" ) );
-            race.addContestant( execute( "MATCH (n:YO) DELETE n" ) );
-            race.go();
-        }
+        Performance.measure( new GraphDatabaseTarget() )
+                .withOperations( createNode() )
+                .withThreads( 100 )
+//                .withDuration( MINUTES.toSeconds( 2 ) )
+                .withDuration( 120 )
+//                .withAllocationSampling( new CountingAllocationSampler() )
+                .please();
     }
 
-    private Runnable execute( final String query )
+    private Operation<GraphDatabaseTarget> createNode()
     {
-        return new Runnable()
+        return new Operation<GraphDatabaseTarget>()
         {
             @Override
-            public void run()
+            public void perform( GraphDatabaseTarget on )
             {
-                dbr.execute( query );
+                try ( Transaction tx = on.db.beginTx() )
+                {
+                    on.db.createNode();
+                    tx.success();
+                }
             }
         };
     }

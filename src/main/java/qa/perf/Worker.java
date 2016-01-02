@@ -20,18 +20,17 @@
 package qa.perf;
 
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.neo4j.helpers.Provider;
+import java.util.function.Supplier;
 
 public class Worker<T extends Target> extends Thread
 {
     private final T target;
-    private final Provider<Operation<T>> operation;
+    private final Supplier<Operation<T>> operation;
     private final AtomicBoolean end;
     private int completedCount;
     private final int batchSize;
 
-    public Worker( T target, Provider<Operation<T>> operation, int batchSize, AtomicBoolean end )
+    public Worker( T target, Supplier<Operation<T>> operation, int batchSize, AtomicBoolean end )
     {
         this.target = target;
         this.operation = operation;
@@ -46,7 +45,7 @@ public class Worker<T extends Target> extends Thread
         {
             for ( int i = 0; i < batchSize; i++ )
             {
-                operation.instance().perform( target );
+                operation.get().perform( target );
             }
             completedCount += batchSize;
         }

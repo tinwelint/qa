@@ -22,48 +22,37 @@ package qa;
 import org.junit.Rule;
 import org.junit.Test;
 
-import org.neo4j.graphdb.DynamicLabel;
-import org.neo4j.graphdb.Label;
-import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
+import org.neo4j.graphdb.factory.GraphDatabaseBuilder;
 import org.neo4j.test.DatabaseRule;
-import org.neo4j.test.ImpermanentDatabaseRule;
+import org.neo4j.test.EmbeddedDatabaseRule;
 
-import static java.util.concurrent.TimeUnit.MINUTES;
-
-public class SimpleOperationsTest
+public class SettingsTest
 {
     @Rule
-    public final DatabaseRule db = new ImpermanentDatabaseRule();
+    public final DatabaseRule db = new EmbeddedDatabaseRule()
+    {
+        @Override
+        protected void configure( GraphDatabaseBuilder builder )
+        {
+            builder.setConfig( "store.internal_log.rotation_threshold", "20M" );
+            builder.setConfig( "store.internal_log.rotation_delay", "10s" );
+        }
+    };
 
     @Test
-    public void shouldSetNodeProperty() throws Exception
+    public void shouldAcceptByteSizes() throws Exception
     {
-        Label label = DynamicLabel.label( "Label" );
-        String key = "key";
         try ( Transaction tx = db.beginTx() )
         {
-            db.schema().indexFor( label ).on( key ).create();
-            tx.success();
-        }
-        try ( Transaction tx = db.beginTx() )
-        {
-            db.schema().awaitIndexesOnline( 1, MINUTES );
+            // GIVEN
+            db.createNode();
             tx.success();
         }
 
-        Node node;
-        try ( Transaction tx = db.beginTx() )
-        {
-            node = db.createNode( label );
-            node.setProperty( key, "2" );
-            tx.success();
-        }
 
-        try ( Transaction tx = db.beginTx() )
-        {
-            node.getProperty( key );
-            tx.success();
-        }
+        // WHEN
+
+        // THEN
     }
 }

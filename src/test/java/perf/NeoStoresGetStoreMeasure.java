@@ -17,18 +17,29 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package tooling;
+package perf;
 
-import org.neo4j.graphdb.factory.GraphDatabaseFactory;
-import org.neo4j.graphdb.factory.GraphDatabaseSettings;
+import org.junit.Test;
+import qa.NeoStoresTarget;
+import qa.perf.Operation;
+import qa.perf.Operations;
+import qa.perf.Performance;
 
-public class UpgradeDb
+import static qa.perf.Operations.single;
+
+public class NeoStoresGetStoreMeasure
 {
-    public static void main( String[] args )
+    @Test
+    public void shouldMeasure() throws Exception
     {
-        new GraphDatabaseFactory().newEmbeddedDatabaseBuilder( args[0] )
-                .setConfig( GraphDatabaseSettings.allow_store_upgrade, "true" )
-                .newGraphDatabase()
-                .shutdown();
+        NeoStoresTarget target = new NeoStoresTarget( true );
+        Performance.measure( target, Operations.<NeoStoresTarget>noop(), single( new Operation<NeoStoresTarget>()
+        {
+            @Override
+            public void perform( NeoStoresTarget on )
+            {
+                on.stores().getNodeStore();
+            }
+        } ), 20, 10 );
     }
 }

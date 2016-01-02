@@ -14,7 +14,7 @@
   <url>http://neo4j.org</url>
 
   <properties>
-    <neo4j.version>2.3-SNAPSHOT</neo4j.version>
+    <neo4j.version>3.0.0-SNAPSHOT</neo4j.version>
   </properties>
 
   <build>
@@ -30,15 +30,25 @@
   </build>
 
   <dependencies>
+<!--     <dependency> -->
+<!--       <groupId>org.neo4j</groupId> -->
+<!--       <artifactId>neo4j-enterprise</artifactId> -->
+<!--       <version>${neo4j.version}</version> -->
+<!--     </dependency> -->
+<!--     <dependency> -->
+<!--       <groupId>org.neo4j</groupId> -->
+<!--       <artifactId>neo4j-shell</artifactId> -->
+<!--       <version>${neo4j.version}</version> -->
+<!--     </dependency> -->
     <dependency>
-      <groupId>org.neo4j</groupId>
-      <artifactId>neo4j-enterprise</artifactId>
-      <version>${neo4j.version}</version>
+        <groupId>org.neo4j</groupId>
+        <artifactId>neo4j-kernel</artifactId>
+        <version>${neo4j.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.neo4j</groupId>
-      <artifactId>neo4j-shell</artifactId>
-      <version>${neo4j.version}</version>
+        <groupId>org.neo4j</groupId>
+        <artifactId>neo4j-lucene-index</artifactId>
+        <version>${neo4j.version}</version>
     </dependency>
     <dependency>
         <groupId>org.neo4j</groupId>
@@ -46,24 +56,59 @@
         <version>${neo4j.version}</version>
         <type>test-jar</type>
         <classifier>tests</classifier>
-        <scope>test</scope>
     </dependency>
 <!--     <dependency> -->
 <!--       <groupId>org.neo4j</groupId> -->
 <!--       <artifactId>neo4j-import-tool</artifactId> -->
 <!--       <version>${neo4j.version}</version> -->
 <!--     </dependency> -->
-
-    <dependency>
-      <groupId>org.neo4j.app</groupId>
-      <artifactId>neo4j-server</artifactId>
-      <version>${neo4j.version}</version>
-    </dependency>
 <!--     <dependency> -->
 <!--       <groupId>org.neo4j</groupId> -->
-<!--       <artifactId>neo4j-query-logging</artifactId> -->
+<!--       <artifactId>neo4j-import-tool</artifactId> -->
+<!--       <version>${neo4j.version}</version> -->
+<!--         <classifier>tests</classifier> -->
+<!--     </dependency> -->
+<!--     <dependency> -->
+<!--       <groupId>org.neo4j.app</groupId> -->
+<!--       <artifactId>neo4j-server</artifactId> -->
 <!--       <version>${neo4j.version}</version> -->
 <!--     </dependency> -->
+<!--     <dependency> -->
+<!--       <groupId>org.neo4j</groupId> -->
+<!--       <artifactId>neo4j-shell</artifactId> -->
+<!--       <version>${neo4j.version}</version> -->
+<!--     </dependency> -->
+<!--     <dependency> -->
+<!--       <groupId>org.neo4j</groupId> -->
+<!--       <artifactId>command-bench-core</artifactId> -->
+<!--       <version>1.0-SNAPSHOT</version> -->
+<!--     </dependency> -->
+<!--     <dependency> -->
+<!--       <groupId>org.neo4j</groupId> -->
+<!--       <artifactId>command-bench-workload-api</artifactId> -->
+<!--       <version>1.0-SNAPSHOT</version> -->
+<!--     </dependency> -->
+<!--     <dependency> -->
+<!--       <groupId>org.neo4j</groupId> -->
+<!--       <artifactId>data-bench</artifactId> -->
+<!--       <version>1.0-SNAPSHOT</version> -->
+<!--     </dependency> -->
+<!--     <dependency> -->
+<!--       <groupId>org.neo4j</groupId> -->
+<!--       <artifactId>neo-workbench-utils</artifactId> -->
+<!--       <version>1.0-SNAPSHOT</version> -->
+<!--     </dependency> -->
+<!--     <dependency> -->
+<!--       <groupId>org.neo4j</groupId> -->
+<!--       <artifactId>soak-puppet-store-generators</artifactId> -->
+<!--       <version>1.0-SNAPSHOT</version> -->
+<!--     </dependency> -->
+
+	<dependency>
+	  <groupId>com.google.code.java-allocation-instrumenter</groupId>
+	  <artifactId>java-allocation-instrumenter</artifactId>
+	  <version>3.0</version>
+	</dependency>
 
     <dependency>
         <groupId>org.neo4j</groupId>
@@ -73,21 +118,21 @@
         <classifier>tests</classifier>
         <scope>test</scope>
     </dependency>
-    <dependency>
-        <groupId>org.neo4j</groupId>
-        <artifactId>neo4j-ha</artifactId>
-        <version>${neo4j.version}</version>
-        <type>test-jar</type>
-        <classifier>tests</classifier>
-        <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.neo4j</groupId>
-      <artifactId>neo4j-primitive-collections</artifactId>
-      <version>${neo4j.version}</version>
-      <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
+<!--     <dependency> -->
+<!--         <groupId>org.neo4j</groupId> -->
+<!--         <artifactId>neo4j-ha</artifactId> -->
+<!--         <version>${neo4j.version}</version> -->
+<!--         <type>test-jar</type> -->
+<!--         <classifier>tests</classifier> -->
+<!--         <scope>test</scope> -->
+<!--     </dependency> -->
+<!--     <dependency> -->
+<!--       <groupId>org.neo4j</groupId> -->
+<!--       <artifactId>neo4j-primitive-collections</artifactId> -->
+<!--       <version>${neo4j.version}</version> -->
+<!--       <type>test-jar</type> -->
+<!--       <scope>test</scope> -->
+<!--     </dependency> -->
      <dependency>
       <groupId>com.google.jimfs</groupId>
       <artifactId>jimfs</artifactId>

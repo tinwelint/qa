@@ -19,28 +19,84 @@
  */
 package qa.perf;
 
+import com.google.monitoring.runtime.instrumentation.AllocationRecorder;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 
-import org.neo4j.helpers.Provider;
+import static qa.perf.Operations.single;
 
 import static java.lang.System.currentTimeMillis;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-public class Performance
+public class Performance<T extends Target>
 {
-    public static <T extends Target> double measure( T target, Operation<T> initial,
-            Provider<Operation<T>> operation, int threads, long durationSeconds ) throws Exception
+    private final T target;
+    private Operation<T> initial;
+    private Supplier<Operation<T>> operations;
+    private int batchSize = 50;
+    private int threads = Runtime.getRuntime().availableProcessors();
+    private long durationSeconds = 60;
+    private AllocationSampler sampler;
+
+    private Performance( T target )
     {
-        return measure( target, initial, operation, 50, threads, durationSeconds );
+        this.target = target;
     }
 
-    /**
-     * @return ops/ms
-     */
-    public static <T extends Target> double measure( T target, Operation<T> initial,
-            Provider<Operation<T>> operation, int batchSize, int threads, long durationSeconds ) throws Exception
+    public static <T extends Target> Performance<T> measure( T target )
+    {
+        return new Performance<>( target );
+    }
+
+    public Performance<T> withInitialOperation( Operation<T> initial )
+    {
+        this.initial = initial;
+        return this;
+    }
+
+    public Performance<T> withOperations( Operation<T> operations )
+    {
+        return withOperations( single( operations ) );
+    }
+
+    public Performance<T> withOperations( Supplier<Operation<T>> operations )
+    {
+        this.operations = operations;
+        return this;
+    }
+
+    public Performance<T> withBatchSize( int batchSize )
+    {
+        this.batchSize = batchSize;
+        return this;
+    }
+
+    public Performance<T> withThreads( int thread )
+    {
+        this.threads = thread;
+        return this;
+    }
+
+    public Performance<T> withDuration( long seconds )
+    {
+        this.durationSeconds = seconds;
+        return this;
+    }
+
+    public Performance<T> withAllocationSampling( AllocationSampler sampler )
+    {
+        this.sampler = sampler;
+        return this;
+    }
+
+    public double please() throws Exception
     {
         target.start();
+        if ( sampler != null )
+        {
+            AllocationRecorder.addSampler( sampler );
+        }
+        long totalOps = 0;
         try
         {
             if ( initial != null )
@@ -51,7 +107,7 @@ public class Performance
             AtomicBoolean end = new AtomicBoolean();
             for ( int i = 0; i < threads; i++ )
             {
-                workers[i] = new Worker<>( target, operation, batchSize, end );
+                workers[i] = new Worker<>( target, operations, batchSize, end );
                 workers[i].start();
             }
 
@@ -63,20 +119,44 @@ public class Performance
             }
             end.set( true );
 
-            long totalCount = 0;
             for ( Worker<T> worker : workers )
             {
                 worker.join();
-                totalCount += worker.getCompletedCount();
+                totalOps += worker.getCompletedCount();
             }
             long actualDuration = currentTimeMillis()-startTime;
-            double opsPerMilli = (double) totalCount / (double) actualDuration;
-            System.out.println( opsPerMilli + " ops/ms" );
+            double opsPerMilli = (double) totalOps / (double) actualDuration;
+            System.out.println( opsPerMilli + " ops/ms (ops=" + totalOps + ")" );
             return opsPerMilli;
         }
         finally
         {
+            if ( sampler != null )
+            {
+                sampler.close( totalOps );
+            }
             target.stop();
         }
+    }
+
+    public static <T extends Target> double measure( T target, Operation<T> initial,
+            Supplier<Operation<T>> operation, int threads, long durationSeconds ) throws Exception
+    {
+        return measure( target, initial, operation, 50, threads, durationSeconds );
+    }
+
+    /**
+     * @return ops/ms
+     */
+    public static <T extends Target> double measure( T target, Operation<T> initial,
+            Supplier<Operation<T>> operation, int batchSize, int threads, long durationSeconds ) throws Exception
+    {
+        return new Performance<>( target )
+                .withInitialOperation( initial )
+                .withOperations( operation )
+                .withBatchSize( batchSize )
+                .withThreads( threads )
+                .withDuration( durationSeconds )
+                .please();
     }
 }

@@ -19,34 +19,35 @@
  */
 package qa;
 
-import java.io.File;
+import org.junit.Rule;
+import org.junit.Test;
+
 import java.io.IOException;
 
-import org.neo4j.graphdb.factory.GraphDatabaseFactory;
-import org.neo4j.io.fs.FileUtils;
-import org.neo4j.kernel.GraphDatabaseAPI;
-import org.neo4j.kernel.impl.util.StringLogger;
-import org.neo4j.kernel.logging.Logging;
+import org.neo4j.graphdb.Transaction;
+import org.neo4j.test.DatabaseRule;
+import org.neo4j.test.EmbeddedDatabaseRule;
 
-public class RollingLogs
+public class SimpleTransactionTest
 {
-    public static void main( String[] args ) throws IOException
-    {
-        // GIVEN
-        GraphDatabaseAPI db = (GraphDatabaseAPI) new GraphDatabaseFactory().newEmbeddedDatabase( clean( "rollinglogs" ) );
-        Logging logging = db.getDependencyResolver().resolveDependency( Logging.class );
-        StringLogger log = logging.getMessagesLog( RollingLogs.class );
+    @Rule
+    public final DatabaseRule db = new EmbeddedDatabaseRule( getClass() );
 
-        // WHEN
-        for ( int i = 0; true; i++ )
+    @Test
+    public void shouldCreateOneNode() throws Exception
+    {
+        waitForProfiling();
+        try ( Transaction tx = db.beginTx() )
         {
-            log.info( "Just a test message " + i );
+            db.createNode();
+            tx.success();
         }
     }
 
-    private static String clean( String string ) throws IOException
+    private void waitForProfiling() throws IOException
     {
-        FileUtils.deleteRecursively( new File( string ) );
-        return string;
+        System.out.println( "Awaiting profiling... ENTER to start" );
+        System.in.read();
+        System.in.skip( System.in.available() );
     }
 }
