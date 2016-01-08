@@ -34,9 +34,11 @@ public class Performance<T extends Target>
     private Operation<T> initial;
     private Supplier<Operation<T>> operations;
     private int batchSize = 50;
-    private int threads = Runtime.getRuntime().availableProcessors();
-    private long durationSeconds = 60;
+    private int threads = 1;
+    private long durationSeconds = 5;
     private AllocationSampler sampler;
+    private String name;
+    private int warmupOps = 1;
 
     private Performance( T target )
     {
@@ -77,6 +79,11 @@ public class Performance<T extends Target>
         return this;
     }
 
+    public Performance<T> withAllCores()
+    {
+        return withThreads( Runtime.getRuntime().availableProcessors() );
+    }
+
     public Performance<T> withDuration( long seconds )
     {
         this.durationSeconds = seconds;
@@ -89,13 +96,29 @@ public class Performance<T extends Target>
         return this;
     }
 
+    public Performance<T> withName( String name )
+    {
+        this.name = name;
+        return this;
+    }
+
+    /**
+     * @param indirection call stack items away. 0 means the name of the method calling this method.
+     */
+    public Performance<T> withNameFromCallingMethod( int indirection )
+    {
+        return withName( Thread.currentThread().getStackTrace()[2+indirection].getMethodName() );
+    }
+
+    public Performance<T> withWarmup( int warmupOps )
+    {
+        this.warmupOps = warmupOps;
+        return this;
+    }
+
     public double please() throws Exception
     {
         target.start();
-        if ( sampler != null )
-        {
-            AllocationRecorder.addSampler( sampler );
-        }
         long totalOps = 0;
         try
         {
@@ -103,6 +126,17 @@ public class Performance<T extends Target>
             {
                 initial.perform( target );
             }
+
+            for ( int i = 0; i < warmupOps; i++ )
+            {
+                operations.get().perform( target );
+            }
+
+            if ( sampler != null )
+            {
+                AllocationRecorder.addSampler( sampler );
+            }
+            @SuppressWarnings( "rawtypes" )
             Worker[] workers = new Worker[threads];
             AtomicBoolean end = new AtomicBoolean();
             for ( int i = 0; i < threads; i++ )
@@ -126,7 +160,8 @@ public class Performance<T extends Target>
             }
             long actualDuration = currentTimeMillis()-startTime;
             double opsPerMilli = (double) totalOps / (double) actualDuration;
-            System.out.println( opsPerMilli + " ops/ms (ops=" + totalOps + ")" );
+            System.out.println( "====== " + (name != null ? name + ": " : "") + opsPerMilli +
+                    " ops/ms (ops=" + totalOps + ")" + " ======" );
             return opsPerMilli;
         }
         finally

@@ -19,6 +19,7 @@
  */
 package qa.perf;
 
+@FunctionalInterface
 public interface Operation<T extends Target>
 {
     void perform( T on );
