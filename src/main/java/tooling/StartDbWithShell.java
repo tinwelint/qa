@@ -22,10 +22,8 @@ package tooling;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
-import org.neo4j.helpers.Settings;
+import org.neo4j.kernel.configuration.Settings;
 import org.neo4j.shell.ShellSettings;
-
-import static org.neo4j.helpers.SillyUtils.ignore;
 
 public class StartDbWithShell
 {
@@ -36,7 +34,7 @@ public class StartDbWithShell
                 .setConfig( ShellSettings.remote_shell_enabled, Settings.TRUE )
                 .setConfig( GraphDatabaseSettings.allow_store_upgrade, Settings.TRUE ).newGraphDatabase();
         System.out.println( "db " + path + " started, ENTER to quit" );
-        ignore( System.in.read() );
+        System.in.read();
         db.shutdown();
     }
 }

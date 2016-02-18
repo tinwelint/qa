@@ -32,25 +32,32 @@ public class GraphDatabaseTarget implements Target
 {
     public GraphDatabaseService db;
     private final Map<String,String> config;
+    private File storeDir;
 
     public GraphDatabaseTarget( String... config )
     {
         this.config = MapUtil.stringMap( config );
     }
 
+    public GraphDatabaseTarget onExistingStoreDir( File storeDir )
+    {
+        this.storeDir = storeDir;
+        return this;
+    }
+
     @Override
     public void start() throws IOException
     {
+        if ( storeDir == null )
+        {
+            storeDir = new File( DEFAULT_DIR );
+            FileUtils.deleteRecursively( storeDir );
+        }
+
         db = new GraphDatabaseFactory()
-                .newEmbeddedDatabaseBuilder( clear( DEFAULT_DIR ) )
+                .newEmbeddedDatabaseBuilder( storeDir )
                 .setConfig( config )
                 .newGraphDatabase();
-    }
-
-    private String clear( String string ) throws IOException
-    {
-        FileUtils.deleteRecursively( new File( string ) );
-        return string;
     }
 
     GraphDatabaseService db()

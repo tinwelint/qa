@@ -20,7 +20,11 @@
 package qa.perf;
 
 import com.google.monitoring.runtime.instrumentation.AllocationRecorder;
+
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import static qa.perf.Operations.single;
@@ -30,15 +34,18 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class Performance<T extends Target>
 {
+    private static final String THREAD_NAME_PREFIX = "Performance-Worker-";
     private final T target;
     private Operation<T> initial;
     private Supplier<Operation<T>> operations;
     private int batchSize = 50;
     private int threads = 1;
     private long durationSeconds = 5;
-    private AllocationSampler sampler;
     private String name;
     private int warmupOps = 1;
+    private boolean allocationSampling;
+    private boolean verboseAllocationSampling;
+    private final Collection<Predicate<StackTraceElement[]>> allocationFiltering = new ArrayList<>();
 
     private Performance( T target )
     {
@@ -90,9 +97,53 @@ public class Performance<T extends Target>
         return this;
     }
 
-    public Performance<T> withAllocationSampling( AllocationSampler sampler )
+    public Performance<T> withAllocationSampling()
     {
-        this.sampler = sampler;
+        this.allocationSampling = true;
+        this.verboseAllocationSampling = false;
+        return this;
+    }
+
+    public Performance<T> withVerboseAllocationSampling()
+    {
+        this.allocationSampling = true;
+        this.verboseAllocationSampling = true;
+        return this;
+    }
+
+    public Performance<T> withAllocationSamplingCallStackExclusionByPackage( String pkg )
+    {
+        this.allocationFiltering.add( new Predicate<StackTraceElement[]>()
+        {
+            @Override
+            public boolean test( StackTraceElement[] callStack )
+            {
+                try
+                {
+                    boolean contains = false;
+                    for ( StackTraceElement element : callStack )
+                    {
+                        String elementPkg = Class.forName( element.getClassName() ).getPackage().getName();
+                        if ( elementPkg.startsWith( pkg ) )
+                        {
+                            contains = true;
+                            break;
+                        }
+                    }
+                    return !contains;
+                }
+                catch ( Exception e )
+                {
+                    return true;
+                }
+            }
+
+            @Override
+            public String toString()
+            {
+                return "Objects allocated from inside " + pkg + ".*";
+            }
+        } );
         return this;
     }
 
@@ -120,6 +171,7 @@ public class Performance<T extends Target>
     {
         target.start();
         long totalOps = 0;
+        AllocationSampler allocationSampler = null;
         try
         {
             if ( initial != null )
@@ -132,16 +184,18 @@ public class Performance<T extends Target>
                 operations.get().perform( target );
             }
 
-            if ( sampler != null )
+            if ( allocationSampling )
             {
-                AllocationRecorder.addSampler( sampler );
+                allocationSampler = new CountingAllocationSampler( 1, verboseAllocationSampling,
+                        allocationFiltering, (threadName) -> threadName.startsWith( THREAD_NAME_PREFIX ) );
+                AllocationRecorder.addSampler( allocationSampler );
             }
             @SuppressWarnings( "rawtypes" )
             Worker[] workers = new Worker[threads];
             AtomicBoolean end = new AtomicBoolean();
             for ( int i = 0; i < threads; i++ )
             {
-                workers[i] = new Worker<>( target, operations, batchSize, end );
+                workers[i] = new Worker<>( THREAD_NAME_PREFIX + i, target, operations, batchSize, end );
                 workers[i].start();
             }
 
@@ -149,7 +203,7 @@ public class Performance<T extends Target>
             long endTime = startTime + SECONDS.toMillis( durationSeconds );
             while ( currentTimeMillis() < endTime )
             {
-                Thread.sleep( 1_000 );
+                Thread.sleep( 100 );
             }
             end.set( true );
 
@@ -166,9 +220,9 @@ public class Performance<T extends Target>
         }
         finally
         {
-            if ( sampler != null )
+            if ( allocationSampler != null )
             {
-                sampler.close( totalOps );
+                allocationSampler.close( totalOps );
             }
             target.stop();
         }

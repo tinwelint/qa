@@ -32,11 +32,10 @@ import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 import org.neo4j.io.fs.FileUtils;
+import org.neo4j.test.ProcessTestUtil;
 
 import static java.lang.System.currentTimeMillis;
 import static java.util.concurrent.TimeUnit.MINUTES;
-
-import static org.neo4j.test.ProcessUtil.executeSubProcess;
 
 public class CheckPointingRecoveryBreakage
 {
@@ -49,7 +48,7 @@ public class CheckPointingRecoveryBreakage
         for ( int i = 0; i < 100; i++ )
         {
             FileUtils.deleteRecursively( new File( dir ) );
-            executeSubProcess( getClass(), 10, MINUTES, dir );
+            ProcessTestUtil.executeSubProcess( getClass(), 10, MINUTES, dir );
 
             new GraphDatabaseFactory().newEmbeddedDatabase( new File( dir ) ).shutdown();
             ConsistencyCheckTool.main( new String[] {dir} );

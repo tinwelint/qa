@@ -33,10 +33,11 @@ import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.kernel.GraphDatabaseAPI;
 import org.neo4j.kernel.api.exceptions.index.IndexNotFoundKernelException;
-import org.neo4j.kernel.api.index.IndexReader;
 import org.neo4j.kernel.configuration.Config;
 import org.neo4j.kernel.impl.api.index.IndexProxy;
 import org.neo4j.kernel.impl.api.index.IndexingService;
+import org.neo4j.logging.NullLogProvider;
+import org.neo4j.storageengine.api.schema.IndexReader;
 import org.neo4j.test.RandomRule;
 import org.neo4j.test.RepeatRule;
 import org.neo4j.test.RepeatRule.Repeat;
@@ -51,7 +52,6 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 import static org.neo4j.collection.primitive.PrimitiveLongCollections.single;
 import static org.neo4j.helpers.progress.ProgressMonitorFactory.NONE;
-import static org.neo4j.kernel.impl.util.StringLogger.SYSTEM;
 import static org.neo4j.test.TargetDirectory.testDirForTest;
 
 public class LazyIndexUpdatesTest
@@ -147,8 +147,8 @@ public class LazyIndexUpdatesTest
         }
         db.shutdown();
 
-        Result result = new ConsistencyCheckService().runFullConsistencyCheck( directory.absolutePath(),
-                new Config(), NONE, SYSTEM );
+        Result result = new ConsistencyCheckService().runFullConsistencyCheck( directory.directory(),
+                new Config(), NONE, NullLogProvider.getInstance(), false );
         assertTrue( result.isSuccessful() );
         System.out.println( "OK" + (worrying ? " although worrying" : "") );
         assertFalse( worrying );
@@ -254,7 +254,7 @@ public class LazyIndexUpdatesTest
     {
         if ( node.hasLabel( label ) )
         {
-            assertEquals( node.getId(), single( reader.lookup( node.getProperty( mainKey ) ) ) );
+            assertEquals( node.getId(), single( reader.seek( node.getProperty( mainKey ) ) ) );
         }
     }
 

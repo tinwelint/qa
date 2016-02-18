@@ -30,8 +30,9 @@ public class Worker<T extends Target> extends Thread
     private int completedCount;
     private final int batchSize;
 
-    public Worker( T target, Supplier<Operation<T>> operation, int batchSize, AtomicBoolean end )
+    public Worker( String name, T target, Supplier<Operation<T>> operation, int batchSize, AtomicBoolean end )
     {
+        super( name );
         this.target = target;
         this.operation = operation;
         this.batchSize = batchSize;

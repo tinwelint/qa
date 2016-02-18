@@ -14,7 +14,7 @@
   <url>http://neo4j.org</url>
 
   <properties>
-    <neo4j.version>2.3.1</neo4j.version>
+    <neo4j.version>3.0.0-SNAPSHOT</neo4j.version>
   </properties>
 
   <build>
@@ -35,11 +35,6 @@
       <artifactId>neo4j-enterprise</artifactId>
       <version>${neo4j.version}</version>
     </dependency>
-<!--     <dependency> -->
-<!--       <groupId>org.neo4j</groupId> -->
-<!--       <artifactId>neo4j-shell</artifactId> -->
-<!--       <version>${neo4j.version}</version> -->
-<!--     </dependency> -->
     <dependency>
         <groupId>org.neo4j</groupId>
         <artifactId>neo4j-kernel</artifactId>
@@ -51,33 +46,27 @@
         <version>${neo4j.version}</version>
     </dependency>
     <dependency>
-        <groupId>org.neo4j</groupId>
-        <artifactId>neo4j-kernel</artifactId>
-        <version>${neo4j.version}</version>
-        <type>test-jar</type>
-        <classifier>tests</classifier>
+      <groupId>org.neo4j</groupId>
+      <artifactId>neo4j-import-tool</artifactId>
+      <version>${neo4j.version}</version>
     </dependency>
-<!--     <dependency> -->
-<!--       <groupId>org.neo4j</groupId> -->
-<!--       <artifactId>neo4j-import-tool</artifactId> -->
-<!--       <version>${neo4j.version}</version> -->
-<!--     </dependency> -->
-<!--     <dependency> -->
-<!--       <groupId>org.neo4j</groupId> -->
-<!--       <artifactId>neo4j-import-tool</artifactId> -->
-<!--       <version>${neo4j.version}</version> -->
-<!--         <classifier>tests</classifier> -->
-<!--     </dependency> -->
-<!--     <dependency> -->
-<!--       <groupId>org.neo4j.app</groupId> -->
-<!--       <artifactId>neo4j-server</artifactId> -->
-<!--       <version>${neo4j.version}</version> -->
-<!--     </dependency> -->
-<!--     <dependency> -->
-<!--       <groupId>org.neo4j</groupId> -->
-<!--       <artifactId>neo4j-shell</artifactId> -->
-<!--       <version>${neo4j.version}</version> -->
-<!--     </dependency> -->
+    <dependency>
+      <groupId>org.neo4j</groupId>
+      <artifactId>neo4j-import-tool</artifactId>
+      <version>${neo4j.version}</version>
+      <classifier>tests</classifier>
+    </dependency>
+    <dependency>
+      <groupId>org.neo4j</groupId>
+      <artifactId>neo4j-shell</artifactId>
+      <version>${neo4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.neo4j</groupId>
+      <artifactId>neo4j-tools</artifactId>
+      <version>${neo4j.version}</version>
+    </dependency>
+
 <!--     <dependency> -->
 <!--       <groupId>org.neo4j</groupId> -->
 <!--       <artifactId>command-bench-core</artifactId> -->
@@ -117,6 +106,13 @@
         <type>test-jar</type>
         <classifier>tests</classifier>
         <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.neo4j</groupId>
+        <artifactId>neo4j-kernel</artifactId>
+        <version>${neo4j.version}</version>
+        <type>test-jar</type>
+        <classifier>tests</classifier>
     </dependency>
 <!--     <dependency> -->
 <!--         <groupId>org.neo4j</groupId> -->

@@ -4,6 +4,7 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.function.Function;
 
 import org.neo4j.graphdb.DynamicLabel;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -11,7 +12,6 @@ import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
-import org.neo4j.helpers.Function;
 import org.neo4j.io.fs.FileUtils;
 
 import static java.util.concurrent.TimeUnit.MINUTES;

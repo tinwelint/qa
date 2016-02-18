@@ -27,7 +27,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.neo4j.function.Factory;
-import org.neo4j.function.IntFunction;
 import org.neo4j.graphdb.DynamicRelationshipType;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
@@ -39,9 +38,9 @@ import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 import org.neo4j.graphdb.index.Index;
 import org.neo4j.graphdb.index.RelationshipIndex;
-import org.neo4j.helpers.Settings;
 import org.neo4j.index.lucene.ValueContext;
 import org.neo4j.io.fs.FileUtils;
+import org.neo4j.kernel.configuration.Settings;
 
 import static org.junit.Assert.assertEquals;
 

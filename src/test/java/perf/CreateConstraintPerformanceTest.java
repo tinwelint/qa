@@ -65,7 +65,7 @@ public class CreateConstraintPerformanceTest
                 }
             } );
         }
-        workers.awaitAndThrowOnError();
+        workers.awaitAndThrowOnError( Exception.class );
 
         // WHEN
         System.out.println( "Creating constraint" );

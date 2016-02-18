@@ -23,6 +23,8 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Supplier;
 
+import org.neo4j.graphdb.Transaction;
+
 public class Operations
 {
     private Operations()
@@ -82,6 +84,24 @@ public class Operations
                     }
                 }
                 throw new IllegalStateException( "Should not happen" );
+            }
+        };
+    }
+
+    public static <T extends GraphDatabaseTarget> Supplier<Operation<T>> inTx( Supplier<Operation<T>> operations )
+    {
+        return () -> {
+            return inTx( operations.get() );
+        };
+    }
+
+    public static <T extends GraphDatabaseTarget> Operation<T> inTx( Operation<T> operation )
+    {
+        return (on) -> {
+            try ( Transaction tx = on.db.beginTx() )
+            {
+                operation.perform( on );
+                tx.success();
             }
         };
     }

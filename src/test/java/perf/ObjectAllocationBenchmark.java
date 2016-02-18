@@ -20,7 +20,6 @@
 package perf;
 
 import org.junit.Test;
-import qa.perf.CountingAllocationSampler;
 import qa.perf.GraphDatabaseTarget;
 import qa.perf.Operation;
 import qa.perf.Performance;
@@ -31,7 +30,8 @@ import org.neo4j.graphdb.DynamicRelationshipType;
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.RelationshipType;
-import org.neo4j.graphdb.Transaction;
+import static qa.perf.Operations.inTx;
+import static qa.perf.Operations.noop;
 
 import static org.neo4j.helpers.collection.IteratorUtil.count;
 
@@ -44,61 +44,81 @@ public class ObjectAllocationBenchmark
     private void measure( Operation<GraphDatabaseTarget> initial, Operation<GraphDatabaseTarget> op ) throws Exception
     {
         Performance.measure( new GraphDatabaseTarget() )
-                .withInitialOperation( initial )
-                .withOperations( op )
+                .withInitialOperation( inTx( initial ) )
+                .withOperations( inTx( op ) )
                 .withAllCores()
-//                .withWarmup( 100 )
-                .withDuration( 5 )
-                .withAllocationSampling( new CountingAllocationSampler( 1d ) )
+                .withDuration( 20 )
+                .withVerboseAllocationSampling()
+                .withAllocationSamplingCallStackExclusionByPackage( "org.apache.lucene" )
                 .withNameFromCallingMethod( 1 )
                 .please();
+    }
+
+    private void measureOne( Operation<GraphDatabaseTarget> initial, Operation<GraphDatabaseTarget> op ) throws Exception
+    {
+        initial = inTx( initial );
+        op = inTx( op );
+        GraphDatabaseTarget target = new GraphDatabaseTarget();
+        target.start();
+        try
+        {
+            initial.perform( target );
+            op.perform( target ); // warmup
+            op.perform( target );
+        }
+        finally
+        {
+            target.stop();
+        }
     }
 
     @Test
     public void createNode() throws Exception
     {
-        measure( null, _createNode() );
+        measure( noop(), _createNode() );
     }
 
     @Test
     public void createNodeWithLabel() throws Exception
     {
-        measure( null, _createNodeWithLabel() );
+        measure( noop(), _createNodeWithLabel() );
     }
 
     @Test
     public void createNodeWithIntProperty() throws Exception
     {
-        measure( null, _createNodeWithIntProperty() );
+        measure( noop(), _createNodeWithIntProperty() );
     }
 
     @Test
     public void createNodeWithStringProperty() throws Exception
     {
-        measure( null, _createNodeWithStringProperty() );
+        measure( noop(), _createNodeWithStringProperty() );
+    }
+
+    @Test
+    public void createIndexedNodeWithIntPropertyAndLabel() throws Exception
+    {
+        measure( createIndex(), _createNodeWithIntPropertyAndLabel() );
     }
 
     @Test
     public void createTwoNodesConnectedWithRelationship() throws Exception
     {
-        measure( null, _createTwoNodesConnectedWithRelationship() );
+        measure( noop(), _createTwoNodesConnectedWithRelationship() );
     }
 
     @Test
     public void createTwoNodesWithLabelAndIntPropertyConnectedWithRelationship() throws Exception
     {
-        measure( null, _createTwoNodesWithLabelAndIntPropertyConnectedWithRelationship() );
+        measure( noop(), _createTwoNodesWithLabelAndIntPropertyConnectedWithRelationship() );
     }
 
     @Test
     public void readNode() throws Exception
     {
         measure( _createNode(), (on) -> {
-            try ( Transaction tx = on.db.beginTx() )
-            {
-                on.db.getNodeById( 0 );
-                tx.success();
-            }
+            on.db.getNodeById( 0 );
         } );
     }
 
@@ -106,11 +126,7 @@ public class ObjectAllocationBenchmark
     public void findNodeWithLabel() throws Exception
     {
         measure( _createNodeWithLabel(), (on) -> {
-            try ( Transaction tx = on.db.beginTx() )
-            {
-                count( on.db.findNodes( LABEL ) );
-                tx.success();
-            }
+            count( on.db.findNodes( LABEL ) );
         } );
     }
 
@@ -118,26 +134,18 @@ public class ObjectAllocationBenchmark
     public void readNodeWithStringProperty() throws Exception
     {
         measure( _createNodeWithStringProperty(), (on) -> {
-            try ( Transaction tx = on.db.beginTx() )
-            {
-                Node node = on.db.getNodeById( 0 );
-                node.getProperty( KEY );
-                tx.success();
-            }
+            Node node = on.db.getNodeById( 0 );
+            node.getProperty( KEY );
         } );
     }
 
     @Test
-    public void readTwoNodeConnectedWithRelationship() throws Exception
+    public void readTwoNodesConnectedWithRelationship() throws Exception
     {
         measure( _createTwoNodesConnectedWithRelationship(), (on) -> {
-            try ( Transaction tx = on.db.beginTx() )
-            {
-                Node start = on.db.getNodeById( 0 );
-                on.db.getNodeById( 1 );
-                start.getSingleRelationship( TYPE, Direction.OUTGOING );
-                tx.success();
-            }
+            Node start = on.db.getNodeById( 0 );
+            on.db.getNodeById( 1 );
+            start.getSingleRelationship( TYPE, Direction.OUTGOING );
         } );
     }
 
@@ -145,87 +153,73 @@ public class ObjectAllocationBenchmark
     public void readTwoNodesWithLabelAndIntPropertyConnectedWithRelationship() throws Exception
     {
         measure( _createTwoNodesWithLabelAndIntPropertyConnectedWithRelationship(), (on) -> {
-            try ( Transaction tx = on.db.beginTx() )
-            {
-                Node start = on.db.getNodeById( 0 );
-                Node end = on.db.getNodeById( 1 );
-                start.getSingleRelationship( TYPE, Direction.OUTGOING );
-                start.hasLabel( LABEL );
-                end.hasLabel( LABEL );
-                start.getProperty( KEY );
-                end.getProperty( KEY );
-                tx.success();
-            }
+            Node start = on.db.getNodeById( 0 );
+            Node end = on.db.getNodeById( 1 );
+            start.getSingleRelationship( TYPE, Direction.OUTGOING );
+            start.hasLabel( LABEL );
+            end.hasLabel( LABEL );
+            start.getProperty( KEY );
+            end.getProperty( KEY );
         } );
     }
 
     private Operation<GraphDatabaseTarget> _createNode()
     {
         return (on) -> {
-            try ( Transaction tx = on.db.beginTx() )
-            {
-                on.db.createNode();
-                tx.success();
-            }
+            on.db.createNode();
         };
     }
 
     private Operation<GraphDatabaseTarget> _createNodeWithLabel()
     {
         return (on) -> {
-            try ( Transaction tx = on.db.beginTx() )
-            {
-                on.db.createNode( LABEL );
-                tx.success();
-            }
+            on.db.createNode( LABEL );
         };
     }
 
     private Operation<GraphDatabaseTarget> _createNodeWithIntProperty()
     {
         return (on) -> {
-            try ( Transaction tx = on.db.beginTx() )
-            {
-                on.db.createNode().setProperty( KEY, 10 );
-                tx.success();
-            }
+            on.db.createNode().setProperty( KEY, 10 );
         };
     }
 
     private Operation<GraphDatabaseTarget> _createNodeWithStringProperty()
     {
         return (on) -> {
-            try ( Transaction tx = on.db.beginTx() )
-            {
-                on.db.createNode().setProperty( KEY, "string" );
-                tx.success();
-            }
+            on.db.createNode().setProperty( KEY, "abcdefghijklmnoprqstuvwxyzåäö1234567890!#¤%&/()=?<>;:^¨~HDJFKJDHFKJDHFJDKFHDKJFHDJKFHDJFKHDKFHDFKGHKRGtukrhtljHDLKFJKL" );
+        };
+    }
+
+    private Operation<GraphDatabaseTarget> _createNodeWithIntPropertyAndLabel()
+    {
+        return (on) -> {
+            on.db.createNode( LABEL ).setProperty( KEY, 10 );
         };
     }
 
     private Operation<GraphDatabaseTarget> _createTwoNodesConnectedWithRelationship()
     {
         return (on) -> {
-            try ( Transaction tx = on.db.beginTx() )
-            {
-                on.db.createNode().createRelationshipTo( on.db.createNode(), TYPE );
-                tx.success();
-            }
+            on.db.createNode().createRelationshipTo( on.db.createNode(), TYPE );
         };
     }
 
     private Operation<GraphDatabaseTarget> _createTwoNodesWithLabelAndIntPropertyConnectedWithRelationship()
     {
         return (on) -> {
-            try ( Transaction tx = on.db.beginTx() )
-            {
-                Node start = on.db.createNode( LABEL );
-                start.setProperty( KEY, 10 );
-                Node end = on.db.createNode( LABEL );
-                end.setProperty( KEY, 20 );
-                start.createRelationshipTo( end, TYPE );
-                tx.success();
-            }
+            Node start = on.db.createNode( LABEL );
+            start.setProperty( KEY, 10 );
+            Node end = on.db.createNode( LABEL );
+            end.setProperty( KEY, 20 );
+            start.createRelationshipTo( end, TYPE );
+        };
+    }
+
+    private Operation<GraphDatabaseTarget> createIndex()
+    {
+        return (on) -> {
+            on.db.schema().indexFor( LABEL ).on( KEY ).create();
         };
     }
 }

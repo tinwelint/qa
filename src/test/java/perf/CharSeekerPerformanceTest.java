@@ -29,6 +29,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.neo4j.csv.reader.CharReadable;
 import org.neo4j.csv.reader.CharSeeker;
+import org.neo4j.csv.reader.Configuration;
 import org.neo4j.csv.reader.Extractor;
 import org.neo4j.csv.reader.Extractors;
 import org.neo4j.csv.reader.Mark;
@@ -39,7 +40,6 @@ import static org.junit.Assert.assertTrue;
 
 import static java.lang.System.currentTimeMillis;
 
-import static org.neo4j.csv.reader.BufferedCharSeeker.DEFAULT_BUFFER_SIZE;
 import static org.neo4j.csv.reader.CharSeekers.charSeeker;
 import static org.neo4j.helpers.Format.bytes;
 import static org.neo4j.helpers.Format.duration;
@@ -55,7 +55,7 @@ public class CharSeekerPerformanceTest
         // GIVEN
         ValueType[] types = new ValueType[] {ValueType.LONG, ValueType.STRING, ValueType.QUOTED_STRING};
         CharReadable reader = endlessStreamOfRandomStuff( types );
-        CharSeeker seeker = charSeeker( reader, DEFAULT_BUFFER_SIZE, true, QUOTE );
+        CharSeeker seeker = charSeeker( reader, Configuration.DEFAULT.bufferSize(), true, QUOTE );
         Mark mark = new Mark();
         Extractors extractors = new Extractors( ',' );
 
@@ -90,7 +90,6 @@ public class CharSeekerPerformanceTest
             for ( ValueType type : types )
             {
                 assertTrue( seeker.seek( mark, DELIMITER ) );
-//                System.out.println( seeker.extract( mark, type.extractor( extractors ) ).value() );
             }
             assertTrue( mark.isEndOfLine() );
             lines.incrementAndGet();
@@ -103,10 +102,10 @@ public class CharSeekerPerformanceTest
         // GIVEN
         final CharReadable reader = ThreadAheadReadable.threadAhead(
                 endlessStreamOfRandomStuff( ValueType.LONG, ValueType.STRING, ValueType.QUOTED_STRING ),
-                DEFAULT_BUFFER_SIZE );
+                Configuration.DEFAULT.bufferSize() );
 
         // WHEN
-        SectionedCharBuffer buffer = new SectionedCharBuffer( DEFAULT_BUFFER_SIZE );
+        SectionedCharBuffer buffer = new SectionedCharBuffer( Configuration.DEFAULT.bufferSize() );
         final AtomicLong read = new AtomicLong();
         final long startTime = currentTimeMillis();
         Thread stats = new Thread()
