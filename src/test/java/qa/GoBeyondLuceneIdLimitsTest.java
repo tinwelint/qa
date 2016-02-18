@@ -4,6 +4,9 @@ import io.netty.util.internal.ThreadLocalRandom;
 import org.junit.Rule;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.helpers.Format;
@@ -16,6 +19,7 @@ import org.neo4j.kernel.api.index.IndexAccessor;
 import org.neo4j.kernel.api.index.IndexConfiguration;
 import org.neo4j.kernel.api.index.IndexDescriptor;
 import org.neo4j.kernel.api.index.IndexPopulator;
+import org.neo4j.kernel.api.index.NodePropertyUpdate;
 import org.neo4j.kernel.api.index.SchemaIndexProvider;
 import org.neo4j.kernel.configuration.Config;
 import org.neo4j.kernel.impl.api.index.sampling.IndexSamplingConfig;
@@ -139,10 +143,13 @@ public class GoBeyondLuceneIdLimitsTest
         populator.create();
         for ( long i = 0; i < nodeCount; )
         {
+            List<NodePropertyUpdate> updates = new ArrayList<>();
+            long[] labels = new long[] {0};
             for ( int j = 0; j < 1_000_000; j++, i++ )
             {
-                populator.add( i, i );
+                updates.add( NodePropertyUpdate.add( i, 0, i, labels ) );
             }
+            populator.add( updates );
             System.out.println( i );
         }
         populator.close( true );
