@@ -33,6 +33,7 @@ public class GraphDatabaseTarget implements Target
     public GraphDatabaseService db;
     private final Map<String,String> config;
     private File storeDir;
+    public Object state;
 
     public GraphDatabaseTarget( String... config )
     {
@@ -55,7 +56,7 @@ public class GraphDatabaseTarget implements Target
         }
 
         db = new GraphDatabaseFactory()
-                .newEmbeddedDatabaseBuilder( storeDir )
+                .newEmbeddedDatabaseBuilder( storeDir.getAbsolutePath() )
                 .setConfig( config )
                 .newGraphDatabase();
     }

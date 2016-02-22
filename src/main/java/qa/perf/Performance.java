@@ -40,9 +40,10 @@ public class Performance<T extends Target>
     private Supplier<Operation<T>> operations;
     private int batchSize = 50;
     private int threads = 1;
-    private long durationSeconds = 5;
-    private String name;
-    private int warmupOps = 1;
+    private long durationSeconds = 30;
+    private Supplier<String> name;
+    private int warmupOps;
+    private int warmupSeconds = 10;
     private boolean allocationSampling;
     private boolean verboseAllocationSampling;
     private final Collection<Predicate<StackTraceElement[]>> allocationFiltering = new ArrayList<>();
@@ -50,6 +51,7 @@ public class Performance<T extends Target>
     private Performance( T target )
     {
         this.target = target;
+        withNameFromCallingMethod( 2 );
     }
 
     public static <T extends Target> Performance<T> measure( T target )
@@ -149,7 +151,7 @@ public class Performance<T extends Target>
 
     public Performance<T> withName( String name )
     {
-        this.name = name;
+        this.name = () -> name;
         return this;
     }
 
@@ -158,7 +160,8 @@ public class Performance<T extends Target>
      */
     public Performance<T> withNameFromCallingMethod( int indirection )
     {
-        return withName( Thread.currentThread().getStackTrace()[2+indirection].getMethodName() );
+         this.name = () -> Thread.currentThread().getStackTrace()[2+indirection].getMethodName();
+         return this;
     }
 
     public Performance<T> withWarmup( int warmupOps )
@@ -167,8 +170,16 @@ public class Performance<T extends Target>
         return this;
     }
 
+    public Performance<T> withWarmupDuration( int warmupSeconds )
+    {
+        this.warmupSeconds = warmupSeconds;
+        return this;
+    }
+
     public double please() throws Exception
     {
+        String name = this.name.get();
+        System.out.println( name + ":" );
         target.start();
         long totalOps = 0;
         AllocationSampler allocationSampler = null;
@@ -176,12 +187,20 @@ public class Performance<T extends Target>
         {
             if ( initial != null )
             {
+                System.out.println( "  initializing..." );
                 initial.perform( target );
             }
 
-            for ( int i = 0; i < warmupOps; i++ )
+            if ( warmupOps != 0 || warmupSeconds != 0 )
             {
-                operations.get().perform( target );
+                System.out.println( "  warming up..." );
+                long endTime = warmupSeconds != 0 ?
+                        currentTimeMillis() + SECONDS.toMillis( warmupSeconds ) : Long.MAX_VALUE;
+                int targetWarmupUps = warmupOps == 0 ? Integer.MAX_VALUE : warmupOps;
+                for ( int i = 0; i < targetWarmupUps && currentTimeMillis() < endTime; i++ )
+                {
+                    operations.get().perform( target );
+                }
             }
 
             if ( allocationSampling )
@@ -198,6 +217,7 @@ public class Performance<T extends Target>
                 workers[i] = new Worker<>( THREAD_NAME_PREFIX + i, target, operations, batchSize, end );
                 workers[i].start();
             }
+            System.out.println( "  running..." );
 
             long startTime = currentTimeMillis();
             long endTime = startTime + SECONDS.toMillis( durationSeconds );
@@ -214,8 +234,7 @@ public class Performance<T extends Target>
             }
             long actualDuration = currentTimeMillis()-startTime;
             double opsPerMilli = (double) totalOps / (double) actualDuration;
-            System.out.println( "====== " + (name != null ? name + ": " : "") + opsPerMilli +
-                    " ops/ms (ops=" + totalOps + ")" + " ======" );
+            System.out.println( "  " + opsPerMilli + " ops/ms (ops=" + totalOps + ")" );
             return opsPerMilli;
         }
         finally

@@ -14,7 +14,11 @@
   <url>http://neo4j.org</url>
 
   <properties>
-    <neo4j.version>3.0.0-SNAPSHOT</neo4j.version>
+    <neo4j.version>
+<!--     2.2.7 -->
+    2.3.2
+<!--     3.0.0-SNAPSHOT -->
+    </neo4j.version>
   </properties>
 
   <build>
@@ -61,11 +65,11 @@
       <artifactId>neo4j-shell</artifactId>
       <version>${neo4j.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.neo4j</groupId>
-      <artifactId>neo4j-tools</artifactId>
-      <version>${neo4j.version}</version>
-    </dependency>
+<!--     <dependency> -->
+<!--       <groupId>org.neo4j</groupId> -->
+<!--       <artifactId>neo4j-tools</artifactId> -->
+<!--       <version>${neo4j.version}</version> -->
+<!--     </dependency> -->
 
 <!--     <dependency> -->
 <!--       <groupId>org.neo4j</groupId> -->
