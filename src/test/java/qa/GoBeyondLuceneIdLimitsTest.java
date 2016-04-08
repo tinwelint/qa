@@ -1,11 +1,12 @@
 package qa;
 
-import io.netty.util.internal.ThreadLocalRandom;
 import org.junit.Rule;
 import org.junit.Test;
+import versiondiff.VersionDifferences;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Transaction;
@@ -13,18 +14,18 @@ import org.neo4j.helpers.Format;
 import org.neo4j.helpers.collection.IteratorUtil;
 import org.neo4j.helpers.collection.PrefetchingIterator;
 import org.neo4j.io.fs.DefaultFileSystemAbstraction;
-import org.neo4j.kernel.api.impl.index.storage.DirectoryFactory;
-import org.neo4j.kernel.api.impl.schema.LuceneSchemaIndexProvider;
+import org.neo4j.kernel.api.impl.index.DirectoryFactory;
+import org.neo4j.kernel.api.impl.index.LuceneSchemaIndexProvider;
 import org.neo4j.kernel.api.index.IndexAccessor;
 import org.neo4j.kernel.api.index.IndexConfiguration;
 import org.neo4j.kernel.api.index.IndexDescriptor;
 import org.neo4j.kernel.api.index.IndexPopulator;
+import org.neo4j.kernel.api.index.IndexReader;
 import org.neo4j.kernel.api.index.NodePropertyUpdate;
 import org.neo4j.kernel.api.index.SchemaIndexProvider;
 import org.neo4j.kernel.configuration.Config;
 import org.neo4j.kernel.impl.api.index.sampling.IndexSamplingConfig;
 import org.neo4j.kernel.impl.logging.NullLogService;
-import org.neo4j.storageengine.api.schema.IndexReader;
 import org.neo4j.test.DatabaseRule;
 import org.neo4j.test.EmbeddedDatabaseRule;
 import org.neo4j.test.TargetDirectory;
@@ -42,6 +43,7 @@ import org.neo4j.unsafe.impl.batchimport.input.Inputs;
 import org.neo4j.unsafe.impl.batchimport.staging.ExecutionMonitors;
 
 import static org.junit.Assert.assertEquals;
+
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 import static org.neo4j.collection.primitive.PrimitiveLongCollections.single;
@@ -53,7 +55,7 @@ public class GoBeyondLuceneIdLimitsTest
     public final DatabaseRule db = new EmbeddedDatabaseRule( GoBeyondLuceneIdLimitsTest.class );
     @Rule
     public final TargetDirectory.TestDirectory directory = TargetDirectory.testDirForTest( getClass() );
-    private final Label label = Label.label( "Label" );
+    private final Label label = VersionDifferences.label( "Label" );
     private final String key = "key";
     private final long base = Integer.MAX_VALUE;
     private final long additional = 10_000_000;
@@ -94,7 +96,10 @@ public class GoBeyondLuceneIdLimitsTest
 
         // GIVEN
         BatchImporter importer = new ParallelBatchImporter( directory.directory(), Configuration.DEFAULT,
-                NullLogService.getInstance(), ExecutionMonitors.defaultVisible(), new Config() );
+                NullLogService.getInstance(),
+                ExecutionMonitors.defaultVisible()
+//                , new Config()
+                );
         importer.doImport( justNodes() );
         db.ensureStarted();
 
@@ -134,7 +139,7 @@ public class GoBeyondLuceneIdLimitsTest
         SchemaIndexProvider provider = new LuceneSchemaIndexProvider( new DefaultFileSystemAbstraction(),
                 DirectoryFactory.PERSISTENT, directory.directory() );
         System.out.println( directory.directory() );
-        IndexConfiguration indexConfig = IndexConfiguration.NON_UNIQUE;
+        IndexConfiguration indexConfig = VersionDifferences.nonUniqueIndexConfiguration();
         IndexSamplingConfig samplingConfig = new IndexSamplingConfig( new Config() );
         IndexPopulator populator = provider.getPopulator( 0, new IndexDescriptor( 0, 0 ), indexConfig, samplingConfig );
 

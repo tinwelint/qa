@@ -1,13 +1,14 @@
 package perf;
 
-import io.netty.util.internal.ThreadLocalRandom;
 import org.junit.Test;
 import qa.perf.GraphDatabaseTarget;
 import qa.perf.Operation;
 import qa.perf.Performance;
+import versiondiff.VersionDifferences;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.neo4j.graphdb.traversal.Evaluators;
 import org.neo4j.graphdb.traversal.Uniqueness;
@@ -35,7 +36,7 @@ public class RecordFormatComparisonBenchmark
     {
         measure( inTx( (on) ->
                {
-                   System.out.println( count( on.db.getAllRelationships() ) );
+                   System.out.println( count( VersionDifferences.getAllRelationships( on.db ) ) );
                } ) );
     }
 

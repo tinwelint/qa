@@ -38,6 +38,7 @@ import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 import org.neo4j.graphdb.index.Index;
 import org.neo4j.graphdb.index.RelationshipIndex;
+import org.neo4j.index.impl.lucene.LuceneIndexImplementation;
 import org.neo4j.index.lucene.ValueContext;
 import org.neo4j.io.fs.FileUtils;
 import org.neo4j.kernel.configuration.Settings;
@@ -45,8 +46,6 @@ import org.neo4j.kernel.configuration.Settings;
 import static org.junit.Assert.assertEquals;
 
 import static org.neo4j.helpers.collection.IteratorUtil.single;
-import static org.neo4j.index.impl.lucene.legacy.LuceneIndexImplementation.EXACT_CONFIG;
-import static org.neo4j.index.impl.lucene.legacy.LuceneIndexImplementation.FULLTEXT_CONFIG;
 
 public class CreateDbWithLegacyIndexes
 {
@@ -64,15 +63,15 @@ public class CreateDbWithLegacyIndexes
         // WHEN
         IntFunction<String> keyFactory = basicKeyFactory();
         Factory<Node> nodes = createNodes( db );
-        populateIndex( db, nodeIndex( db, "node-1", EXACT_CONFIG ), nodes, keyFactory, stringValues() );
-        populateIndex( db, nodeIndex( db, "node-2", EXACT_CONFIG ), nodes, keyFactory, intValues() );
-        populateIndex( db, nodeIndex( db, "node-3", FULLTEXT_CONFIG ), nodes, keyFactory, stringValues() );
-        populateIndex( db, nodeIndex( db, "node-4", FULLTEXT_CONFIG ), nodes, keyFactory, longValues() );
+        populateIndex( db, nodeIndex( db, "node-1", LuceneIndexImplementation.EXACT_CONFIG ), nodes, keyFactory, stringValues() );
+        populateIndex( db, nodeIndex( db, "node-2", LuceneIndexImplementation.EXACT_CONFIG ), nodes, keyFactory, intValues() );
+        populateIndex( db, nodeIndex( db, "node-3", LuceneIndexImplementation.FULLTEXT_CONFIG ), nodes, keyFactory, stringValues() );
+        populateIndex( db, nodeIndex( db, "node-4", LuceneIndexImplementation.FULLTEXT_CONFIG ), nodes, keyFactory, longValues() );
         Factory<Relationship> relationships = createRelationships( db, type );
-        populateIndex( db, relationshipIndex( db, "rel-1", EXACT_CONFIG ), relationships, keyFactory, stringValues() );
-        populateIndex( db, relationshipIndex( db, "rel-2", EXACT_CONFIG ), relationships, keyFactory, floatValues() );
-        populateIndex( db, relationshipIndex( db, "rel-3", FULLTEXT_CONFIG ), relationships, keyFactory, stringValues() );
-        populateIndex( db, relationshipIndex( db, "rel-4", FULLTEXT_CONFIG ), relationships, keyFactory, doubleValues() );
+        populateIndex( db, relationshipIndex( db, "rel-1", LuceneIndexImplementation.EXACT_CONFIG ), relationships, keyFactory, stringValues() );
+        populateIndex( db, relationshipIndex( db, "rel-2", LuceneIndexImplementation.EXACT_CONFIG ), relationships, keyFactory, floatValues() );
+        populateIndex( db, relationshipIndex( db, "rel-3", LuceneIndexImplementation.FULLTEXT_CONFIG ), relationships, keyFactory, stringValues() );
+        populateIndex( db, relationshipIndex( db, "rel-4", LuceneIndexImplementation.FULLTEXT_CONFIG ), relationships, keyFactory, doubleValues() );
 
         // THEN
         db.shutdown();
@@ -92,15 +91,15 @@ public class CreateDbWithLegacyIndexes
             // THEN
             IntFunction<String> keyFactory = basicKeyFactory();
             Factory<Node> readNodes = readNodes( db );
-            readIndex( db, nodeIndex( db, "node-1", EXACT_CONFIG ), readNodes, keyFactory, stringValues() );
-            readIndex( db, nodeIndex( db, "node-2", EXACT_CONFIG ), readNodes, keyFactory, intValues() );
-            readIndex( db, nodeIndex( db, "node-3", FULLTEXT_CONFIG ), readNodes, keyFactory, stringValues() );
-            readIndex( db, nodeIndex( db, "node-4", FULLTEXT_CONFIG ), readNodes, keyFactory, longValues() );
+            readIndex( db, nodeIndex( db, "node-1", LuceneIndexImplementation.EXACT_CONFIG ), readNodes, keyFactory, stringValues() );
+            readIndex( db, nodeIndex( db, "node-2", LuceneIndexImplementation.EXACT_CONFIG ), readNodes, keyFactory, intValues() );
+            readIndex( db, nodeIndex( db, "node-3", LuceneIndexImplementation.FULLTEXT_CONFIG ), readNodes, keyFactory, stringValues() );
+            readIndex( db, nodeIndex( db, "node-4", LuceneIndexImplementation.FULLTEXT_CONFIG ), readNodes, keyFactory, longValues() );
             Factory<Relationship> relationships = readRelationships( db, type );
-            readIndex( db, relationshipIndex( db, "rel-1", EXACT_CONFIG ), relationships, keyFactory, stringValues() );
-            readIndex( db, relationshipIndex( db, "rel-2", EXACT_CONFIG ), relationships, keyFactory, floatValues() );
-            readIndex( db, relationshipIndex( db, "rel-3", FULLTEXT_CONFIG ), relationships, keyFactory, stringValues() );
-            readIndex( db, relationshipIndex( db, "rel-4", FULLTEXT_CONFIG ), relationships, keyFactory, doubleValues() );
+            readIndex( db, relationshipIndex( db, "rel-1", LuceneIndexImplementation.EXACT_CONFIG ), relationships, keyFactory, stringValues() );
+            readIndex( db, relationshipIndex( db, "rel-2", LuceneIndexImplementation.EXACT_CONFIG ), relationships, keyFactory, floatValues() );
+            readIndex( db, relationshipIndex( db, "rel-3", LuceneIndexImplementation.FULLTEXT_CONFIG ), relationships, keyFactory, stringValues() );
+            readIndex( db, relationshipIndex( db, "rel-4", LuceneIndexImplementation.FULLTEXT_CONFIG ), relationships, keyFactory, doubleValues() );
         }
         finally
         {

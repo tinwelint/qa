@@ -19,15 +19,18 @@
  */
 package tooling;
 
-import org.neo4j.graphdb.factory.GraphDatabaseFactory;
+import java.io.File;
+
+import org.neo4j.graphdb.factory.EnterpriseGraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 
 public class UpgradeDb
 {
     public static void main( String[] args )
     {
-        new GraphDatabaseFactory().newEmbeddedDatabaseBuilder( args[0] )
+        new EnterpriseGraphDatabaseFactory().newEmbeddedDatabaseBuilder( new File( args[0] ) )
                 .setConfig( GraphDatabaseSettings.allow_store_upgrade, "true" )
+//                .setConfig( GraphDatabaseFacadeFactory.Configuration.record_format, LowLimitV3_0.NAME )
                 .newGraphDatabase()
                 .shutdown();
     }

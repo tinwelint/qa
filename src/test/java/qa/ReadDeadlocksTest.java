@@ -37,7 +37,6 @@ import org.neo4j.graphdb.Transaction;
 import org.neo4j.helpers.collection.IteratorUtil;
 import org.neo4j.kernel.DeadlockDetectedException;
 import org.neo4j.kernel.impl.ha.ClusterManager.ManagedCluster;
-import org.neo4j.test.ha.ClusterRule;
 import org.neo4j.unsafe.impl.batchimport.cache.idmapping.string.Workers;
 
 import static java.util.concurrent.TimeUnit.MINUTES;

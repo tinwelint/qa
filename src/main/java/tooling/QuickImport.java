@@ -19,12 +19,22 @@
  */
 package tooling;
 
+import java.io.File;
 import java.io.IOException;
+
+import static org.neo4j.helpers.Args.parse;
+import static org.neo4j.io.fs.FileUtils.deleteRecursively;
 
 public class QuickImport
 {
     public static void main( String[] args ) throws IOException
     {
+        clean( args );
         org.neo4j.tooling.QuickImport.main( args );
+    }
+
+    private static void clean( String[] args ) throws IOException
+    {
+        deleteRecursively( new File( parse( args ).get( "into" ) ) );
     }
 }

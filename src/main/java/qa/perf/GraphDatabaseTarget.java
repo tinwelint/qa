@@ -56,7 +56,7 @@ public class GraphDatabaseTarget implements Target
         }
 
         db = new GraphDatabaseFactory()
-                .newEmbeddedDatabaseBuilder( storeDir.getAbsolutePath() )
+                .newEmbeddedDatabaseBuilder( storeDir )
                 .setConfig( config )
                 .newGraphDatabase();
     }

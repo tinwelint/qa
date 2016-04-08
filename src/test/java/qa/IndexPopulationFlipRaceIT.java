@@ -21,11 +21,12 @@ package qa;
 
 import org.junit.Rule;
 import org.junit.Test;
+import versiondiff.VersionDifferences;
 
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
-import org.neo4j.helpers.collection.Pair;
+import org.neo4j.helpers.Pair;
 import org.neo4j.kernel.api.KernelAPI;
 import org.neo4j.kernel.api.KernelTransaction;
 import org.neo4j.kernel.api.Statement;
@@ -37,8 +38,6 @@ import org.neo4j.test.RandomRule;
 import static org.junit.Assert.assertEquals;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
-
-import static org.neo4j.graphdb.Label.label;
 
 public class IndexPopulationFlipRaceIT
 {
@@ -103,7 +102,7 @@ public class IndexPopulationFlipRaceIT
 
     private Label labelB( int i )
     {
-        return label( "Label_b" + i );
+        return VersionDifferences.label( "Label_b" + i );
     }
 
     private String keyA( int i )
@@ -113,7 +112,7 @@ public class IndexPopulationFlipRaceIT
 
     private Label labelA( int i )
     {
-        return label( "Label_a" + i );
+        return VersionDifferences.label( "Label_a" + i );
     }
 
     private Pair<long[],long[]> createDataThatGoesIntoToThoseIndexes( int i )

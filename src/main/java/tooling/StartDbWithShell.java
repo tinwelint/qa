@@ -22,7 +22,7 @@ package tooling;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
-import org.neo4j.kernel.configuration.Settings;
+import org.neo4j.helpers.Settings;
 import org.neo4j.shell.ShellSettings;
 
 public class StartDbWithShell
