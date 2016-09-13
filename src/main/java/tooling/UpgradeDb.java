@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2002-2015 "Neo Technology,"
+ * Copyright (c) 2002-2016 "Neo Technology,"
  * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
  * This file is part of Neo4j.
@@ -21,17 +21,39 @@ package tooling;
 
 import java.io.File;
 
+import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.EnterpriseGraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
+import org.neo4j.kernel.impl.store.format.highlimit.HighLimit;
 
 public class UpgradeDb
 {
     public static void main( String[] args )
     {
-        new EnterpriseGraphDatabaseFactory().newEmbeddedDatabaseBuilder( new File( args[0] ) )
+        GraphDatabaseService db = new EnterpriseGraphDatabaseFactory().newEmbeddedDatabaseBuilder( new File( args[0] ) )
                 .setConfig( GraphDatabaseSettings.allow_store_upgrade, "true" )
-//                .setConfig( GraphDatabaseFacadeFactory.Configuration.record_format, LowLimitV3_0.NAME )
-                .newGraphDatabase()
-                .shutdown();
+                .setConfig( GraphDatabaseSettings.record_format, HighLimit.NAME )
+                .newGraphDatabase();
+        try ( Transaction tx = db.beginTx() )
+        {
+            int i = 0;
+            for ( Node node : db.getAllNodes() )
+            {
+                System.out.println( node );
+                for ( Relationship relationship : node.getRelationships() )
+                {
+                    System.out.println( "  " + relationship );
+                }
+                if ( ++i == 10 )
+                {
+                    System.out.println( "... this was just a sample of " + i + " ..." );
+                    break;
+                }
+            }
+            tx.success();
+        }
     }
 }

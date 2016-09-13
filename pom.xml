@@ -15,9 +15,10 @@
 
   <properties>
     <neo4j.version>
-<!--     2.2.9-SNAPSHOT -->
-<!--     2.3.7-SNAPSHOT -->
-    3.0.6-SNAPSHOT
+<!--     2.2.19-SNAPSHOT -->
+<!--     2.3.8-SNAPSHOT -->
+      3.0.6-SNAPSHOT
+<!--     3.1.0-SNAPSHOT -->
     </neo4j.version>
   </properties>
 
@@ -42,6 +43,7 @@
   </build>
 
   <dependencies>
+    <!-- main -->
     <dependency>
       <groupId>org.neo4j</groupId>
       <artifactId>neo4j-enterprise</artifactId>
@@ -62,12 +64,12 @@
       <artifactId>neo4j-import-tool</artifactId>
       <version>${neo4j.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.neo4j</groupId>
-      <artifactId>neo4j-import-tool</artifactId>
-      <version>${neo4j.version}</version>
-      <classifier>tests</classifier>
-    </dependency>
+<!--     <dependency> -->
+<!--       <groupId>org.neo4j</groupId> -->
+<!--       <artifactId>neo4j-import-tool</artifactId> -->
+<!--       <version>${neo4j.version}</version> -->
+<!--       <classifier>tests</classifier> -->
+<!--     </dependency> -->
     <dependency>
       <groupId>org.neo4j</groupId>
       <artifactId>neo4j-shell</artifactId>
@@ -126,9 +128,17 @@
         <type>test-jar</type>
         <classifier>tests</classifier>
     </dependency>
+    <dependency>
+        <groupId>org.neo4j</groupId>
+        <artifactId>neo4j-ha</artifactId>
+        <version>${neo4j.version}</version>
+        <type>test-jar</type>
+        <classifier>tests</classifier>
+        <scope>test</scope>
+    </dependency>
 <!--     <dependency> -->
 <!--         <groupId>org.neo4j</groupId> -->
-<!--         <artifactId>neo4j-ha</artifactId> -->
+<!--         <artifactId>neo4j-common</artifactId> -->
 <!--         <version>${neo4j.version}</version> -->
 <!--         <type>test-jar</type> -->
 <!--         <classifier>tests</classifier> -->
@@ -160,7 +170,13 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.9</version>
+      <version>4.10</version>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>1.10.19</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.sun.jersey</groupId>

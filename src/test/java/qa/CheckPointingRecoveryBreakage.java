@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2002-2015 "Neo Technology,"
+ * Copyright (c) 2002-2016 "Neo Technology,"
  * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
  * This file is part of Neo4j.
@@ -32,6 +32,7 @@ import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 import org.neo4j.io.fs.FileUtils;
+import org.neo4j.test.ProcessUtil;
 
 import static java.lang.System.currentTimeMillis;
 import static java.util.concurrent.TimeUnit.MINUTES;
@@ -47,7 +48,7 @@ public class CheckPointingRecoveryBreakage
         for ( int i = 0; i < 100; i++ )
         {
             FileUtils.deleteRecursively( new File( dir ) );
-            ProcessTestUtil.executeSubProcess( getClass(), 10, MINUTES, dir );
+            ProcessUtil.executeSubProcess( getClass(), 10, MINUTES, dir );
 
             new GraphDatabaseFactory().newEmbeddedDatabase( new File( dir ) ).shutdown();
             ConsistencyCheckTool.main( new String[] {dir} );

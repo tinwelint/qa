@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2002-2015 "Neo Technology,"
+ * Copyright (c) 2002-2016 "Neo Technology,"
  * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
  * This file is part of Neo4j.
@@ -17,12 +17,28 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package qa.discover;
+package tooling;
 
-public class RoaringBitmaps
+import tooling.CommandReactor.Action;
+
+import org.neo4j.helpers.Args;
+import org.neo4j.kernel.GraphDatabaseAPI;
+import org.neo4j.kernel.ha.UpdatePuller;
+
+public class PullTransactions implements Action
 {
-    public static void main( String[] args )
-    {
+    private final GraphDatabaseAPI db;
+    private final UpdatePuller puller;
 
+    public PullTransactions( GraphDatabaseAPI db )
+    {
+        this.db = db;
+        this.puller = db.getDependencyResolver().resolveDependency( UpdatePuller.class );
+    }
+
+    @Override
+    public void run( Args action ) throws Exception
+    {
+        puller.pullUpdates();
     }
 }

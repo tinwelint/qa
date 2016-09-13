@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2002-2015 "Neo Technology,"
+ * Copyright (c) 2002-2016 "Neo Technology,"
  * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
  * This file is part of Neo4j.
@@ -20,17 +20,17 @@
 package qa;
 
 import org.junit.Test;
-
 import java.io.File;
 
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
-import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.index.Index;
 import org.neo4j.graphdb.index.RelationshipIndex;
 import org.neo4j.io.fs.FileUtils;
 import org.neo4j.kernel.impl.MyRelTypes;
+
+import static versiondiff.VersionDifferences.newDb;
 
 public class BiggerIndexIdSpaceFormatChangeTest
 {
@@ -41,7 +41,7 @@ public class BiggerIndexIdSpaceFormatChangeTest
     {
         // GIVEN
         FileUtils.deleteRecursively( new File( storeDir ) );
-        GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase( storeDir );
+        GraphDatabaseService db = newDb( storeDir );
 
         // WHEN
         doTransaction( db, "key1", "key2" );
@@ -54,7 +54,7 @@ public class BiggerIndexIdSpaceFormatChangeTest
     public void shouldBeAbleToRecoverAndAddMoreWith_2_2_4() throws Exception
     {
         // GIVEN
-        GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase( storeDir );
+        GraphDatabaseService db = newDb( storeDir );
 
         // WHEN
         doTransaction( db, "key3", "key4" );

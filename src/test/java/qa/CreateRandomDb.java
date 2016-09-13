@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2002-2015 "Neo Technology,"
+ * Copyright (c) 2002-2016 "Neo Technology,"
  * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
  * This file is part of Neo4j.
@@ -19,6 +19,8 @@
  */
 package qa;
 
+import versiondiff.VersionDifferences;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Random;
@@ -32,20 +34,22 @@ import org.neo4j.graphdb.PropertyContainer;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.graphdb.Transaction;
-import org.neo4j.graphdb.factory.GraphDatabaseFactory;
+import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 import org.neo4j.io.fs.FileUtils;
+import org.neo4j.kernel.impl.store.format.highlimit.HighLimit;
 
 public class CreateRandomDb
 {
     private static final Random random = new Random();
 
-    public static void main( String[] args ) throws IOException
+    public static void main( String[] args )
     {
-        GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase(
+        GraphDatabaseService db = VersionDifferences.newDbBuilder(
 //                cleared(
                         "randomdb"
 //                        )
-                );
+                ).setConfig( GraphDatabaseSettings.record_format, HighLimit.NAME )
+                .newGraphDatabase();
         try
         {
             Node[] nodes = new Node[10_000];
@@ -85,8 +89,8 @@ public class CreateRandomDb
         }
         finally
         {
-            System.exit( 1 );
-//            db.shutdown();
+//            System.exit( 1 );
+            db.shutdown();
         }
     }
 

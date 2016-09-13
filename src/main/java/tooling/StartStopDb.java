@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2002-2015 "Neo Technology,"
+ * Copyright (c) 2002-2016 "Neo Technology,"
  * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
  * This file is part of Neo4j.
@@ -21,10 +21,7 @@ package tooling;
 
 import java.io.IOException;
 
-import org.neo4j.graphdb.DynamicLabel;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 import org.neo4j.kernel.configuration.Settings;
@@ -37,23 +34,24 @@ public class StartStopDb
                 .setConfig( GraphDatabaseSettings.allow_store_upgrade, Settings.TRUE )
                 .newGraphDatabase();
 
-//        System.in.read();
-        doSomeTransactions( db );
+        System.out.println( "Press ENTER to shutdown and exit..." );
+        System.in.read();
+//        doSomeTransactions( db );
 
         db.shutdown();
     }
 
-    private static void doSomeTransactions( GraphDatabaseService db )
-    {
-        try ( Transaction tx = db.beginTx() )
-        {
-            for ( int i = 0; i < 10; i++ )
-            {
-                Node node = db.createNode();
-                node.addLabel( DynamicLabel.label( "label-" + i ) );
-                node.setProperty( "key-" + i, i );
-            }
-            tx.success();
-        }
-    }
+//    private static void doSomeTransactions( GraphDatabaseService db )
+//    {
+//        try ( Transaction tx = db.beginTx() )
+//        {
+//            for ( int i = 0; i < 10; i++ )
+//            {
+//                Node node = db.createNode();
+//                node.addLabel( DynamicLabel.label( "label-" + i ) );
+//                node.setProperty( "key-" + i, i );
+//            }
+//            tx.success();
+//        }
+//    }
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2002-2015 "Neo Technology,"
+ * Copyright (c) 2002-2016 "Neo Technology,"
  * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
  * This file is part of Neo4j.
@@ -20,6 +20,7 @@
 package qa;
 
 import org.junit.Test;
+import versiondiff.VersionDifferences;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,14 +35,13 @@ import org.neo4j.graphdb.PropertyContainer;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.graphdb.Transaction;
-import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 import org.neo4j.graphdb.index.Index;
 import org.neo4j.graphdb.index.RelationshipIndex;
+import org.neo4j.helpers.Settings;
 import org.neo4j.index.impl.lucene.LuceneIndexImplementation;
 import org.neo4j.index.lucene.ValueContext;
 import org.neo4j.io.fs.FileUtils;
-import org.neo4j.kernel.configuration.Settings;
 
 import static org.junit.Assert.assertEquals;
 
@@ -55,8 +55,7 @@ public class CreateDbWithLegacyIndexes
     public void shouldCreateStuff() throws Exception
     {
         // GIVEN
-        GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase(
-                cleared( new File( "db-with-legacy-indexes" ) ) );
+        GraphDatabaseService db = VersionDifferences.newDb( cleared( new File( "db-with-legacy-indexes" ) ) );
 
         // TODO we can't have mixed values... i.e. f.ex a key in an index have some string values and some numeric values
 
@@ -81,8 +80,7 @@ public class CreateDbWithLegacyIndexes
     public void shouldReadThatStuffAfterBeingMigrated() throws Exception
     {
         // GIVEN
-        GraphDatabaseService db = new GraphDatabaseFactory()
-                .newEmbeddedDatabaseBuilder( new File( "db-with-legacy-indexes" ) )
+        GraphDatabaseService db = VersionDifferences.newDbBuilder( "db-with-legacy-indexes" )
                 .setConfig( GraphDatabaseSettings.allow_store_upgrade, Settings.TRUE )
                 .newGraphDatabase();
 
@@ -270,7 +268,6 @@ public class CreateDbWithLegacyIndexes
                 ENTITY entity = entityFactory.newInstance();
                 String key = keyFactory.apply( i );
                 Object value = valueFactory.apply( i );
-//                System.out.println( key + ":" + value + " -> " + asList( (Iterator<ENTITY>)index.get( key, value ) ) );
                 assertEquals( entity, single( (Iterator<ENTITY>) index.get( key, value ) ) );
             }
             tx.success();

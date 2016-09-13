@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2002-2015 "Neo Technology,"
+ * Copyright (c) 2002-2016 "Neo Technology,"
  * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
  * This file is part of Neo4j.
@@ -19,12 +19,17 @@
  */
 package tooling;
 
+import java.io.File;
 import java.io.IOException;
+
+import org.neo4j.helpers.Args;
+import org.neo4j.io.fs.FileUtils;
 
 public class ImportTool
 {
     public static void main( String[] args ) throws IOException
     {
+        FileUtils.deleteRecursively( new File( Args.parse( args ).get( "into" ) ) );
         org.neo4j.tooling.ImportTool.main( args );
     }
 }
