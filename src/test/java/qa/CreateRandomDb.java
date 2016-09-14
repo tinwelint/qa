@@ -42,12 +42,12 @@ public class CreateRandomDb
 {
     private static final Random random = new Random();
 
-    public static void main( String[] args )
+    public static void main( String[] args ) throws IOException
     {
         GraphDatabaseService db = VersionDifferences.newDbBuilder(
-//                cleared(
-                        "randomdb"
-//                        )
+                cleared(
+                        "target/randomdb"
+                        )
                 ).setConfig( GraphDatabaseSettings.record_format, HighLimit.NAME )
                 .newGraphDatabase();
         try

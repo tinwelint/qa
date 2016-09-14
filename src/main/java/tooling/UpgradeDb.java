@@ -55,5 +55,6 @@ public class UpgradeDb
             }
             tx.success();
         }
+        db.shutdown();
     }
 }
