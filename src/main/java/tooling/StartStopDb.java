@@ -19,19 +19,18 @@
  */
 package tooling;
 
+import versiondiff.VersionDifferences;
+
 import java.io.IOException;
 
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.factory.GraphDatabaseFactory;
-import org.neo4j.graphdb.factory.GraphDatabaseSettings;
-import org.neo4j.kernel.configuration.Settings;
 
 public class StartStopDb
 {
     public static void main( String[] args ) throws IOException
     {
-        GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder( args[0] )
-                .setConfig( GraphDatabaseSettings.allow_store_upgrade, Settings.TRUE )
+        GraphDatabaseService db = VersionDifferences.newDbBuilder( args[0] )
+//                .setConfig( GraphDatabaseSettings.allow_store_upgrade, Settings.TRUE )
                 .newGraphDatabase();
 
         System.out.println( "Press ENTER to shutdown and exit..." );

@@ -29,12 +29,12 @@ import java.io.IOException;
 import java.util.Random;
 
 import org.neo4j.cursor.Cursor;
-import org.neo4j.index.BTreeHit;
-import org.neo4j.index.SCIndexDescription;
-import org.neo4j.index.SCInserter;
-import org.neo4j.index.btree.Index;
-import org.neo4j.index.btree.PathIndexLayout;
-import org.neo4j.index.btree.TwoLongs;
+import org.neo4j.index.Hit;
+import org.neo4j.index.bptree.BPTreeIndex;
+import org.neo4j.index.bptree.path.PathIndexLayout;
+import org.neo4j.index.bptree.path.SCIndexDescription;
+import org.neo4j.index.bptree.path.TwoLongs;
+import org.neo4j.index.Modifier;
 import org.neo4j.io.fs.DefaultFileSystemAbstraction;
 import org.neo4j.io.pagecache.PageCache;
 import org.neo4j.io.pagecache.PageSwapperFactory;
@@ -56,17 +56,17 @@ public class IndexTest
     private File indexFile;
     private final SCIndexDescription description = new SCIndexDescription( "a", "b", "c", OUTGOING, "d", null );
     @SuppressWarnings( "rawtypes" )
-    private Index index;
+    private BPTreeIndex index;
 
     @SuppressWarnings( "unchecked" )
-    public <KEY,VALUE> Index createIndex( int pageSize ) throws IOException
+    public <KEY,VALUE> BPTreeIndex createIndex( int pageSize ) throws IOException
     {
         PageSwapperFactory swapperFactory = new SingleFilePageSwapperFactory();
         swapperFactory.setFileSystemAbstraction( new DefaultFileSystemAbstraction() );
         pageCache = new MuninnPageCache( swapperFactory, 100, pageSize, NULL );
         indexFile = folder.newFile( "index" );
 //        File metaFile = folder.newFile( "meta" );
-        return index = new Index( pageCache, indexFile, new PathIndexLayout(), description, pageSize );
+        return index = new BPTreeIndex( pageCache, indexFile, new PathIndexLayout(), description, pageSize );
     }
 
     @After
@@ -82,13 +82,13 @@ public class IndexTest
         try
         {
             // GIVEN
-            Index index = createIndex( 128 );
+            BPTreeIndex index = createIndex( 128 );
 
             // WHEN
             long seed = currentTimeMillis();
             System.out.println( "Seed:" + seed );
             Random random = new Random( seed );
-            try ( SCInserter inserter = index.inserter() )
+            try ( Modifier inserter = index.inserter() )
             {
                 for ( int i = 0; i < 300_000; i++ )
                 {
@@ -141,7 +141,7 @@ public class IndexTest
 //            }
 //        }
 
-        try ( Cursor<BTreeHit<TwoLongs,TwoLongs>> cursor = index.seek( new TwoLongs( 0, 0 ), new TwoLongs( Long.MAX_VALUE, 0 ) ) )
+        try ( Cursor<Hit<TwoLongs,TwoLongs>> cursor = index.seek( new TwoLongs( 0, 0 ), new TwoLongs( Long.MAX_VALUE, 0 ) ) )
         {
             TwoLongs prev = new TwoLongs( -1, -1 );
             while ( cursor.next() )

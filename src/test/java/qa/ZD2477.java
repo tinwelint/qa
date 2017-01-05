@@ -71,7 +71,7 @@ public class ZD2477
     public void shouldReproduce() throws Exception
     {
         // 1. Create a batch inserter
-        BatchInserter inserter = BatchInserters.inserter( directory.absolutePath() );
+        BatchInserter inserter = BatchInserters.modifier( directory.absolutePath() );
         BatchInserterIndexProvider indexProvider = new LuceneBatchInserterIndexProvider(inserter);
         BatchInserterIndex batchInserterIndex = indexProvider.nodeIndex( "nodes", stringMap( "type", "exact" ) );
 

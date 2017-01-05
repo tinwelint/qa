@@ -48,7 +48,7 @@ public class SoakTestAddUserRegressionTest
         GraphDatabaseService db = new EnterpriseGraphDatabaseFactory().newEmbeddedDatabase(
                 new File( "K:\\extended\\3.0\\graph.db" ) );
 
-        Inventory userIds = new Inventory( Range.minMax( 2_000_015_000, Integer.MAX_VALUE ) );
+        Inventory userIds = new Inventory( Range.minMax( 2_000_026_002, Integer.MAX_VALUE ) );
         AscendingExcludedNumbers deletedUsers = new AscendingExcludedNumbers( userIds.asRange() );
         CypherClient cypherClient = new EmbeddedCypherClient( db );
         AddUser command = new AddUser( userIds, deletedUsers, cypherClient,
@@ -57,7 +57,7 @@ public class SoakTestAddUserRegressionTest
         try
         {
             long time = currentTimeMillis();
-            int count = 10_000;
+            int count = 1;
             ResultContext resultContext = new StupidResultContext();
             int success = 0;
             int failure = 0;
@@ -162,7 +162,13 @@ public class SoakTestAddUserRegressionTest
         public Observable<CypherResponse> executeWrite( String cypher, Map<String,Object> params )
         {
             Result result = db.execute( cypher, params );
+            System.out.println( result.getExecutionPlanDescription() );
             return Observable.from( array( new ResultCypherResponse( result ) ) );
+        }
+
+        private String rulePlanner( String cypher )
+        {
+            return "CYPHER planner=rule " + cypher;
         }
 
         @Override

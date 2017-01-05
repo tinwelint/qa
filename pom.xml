@@ -15,11 +15,12 @@
 
   <properties>
     <neo4j.version>
-<!--     2.2.19-SNAPSHOT -->
+    2.2.11-SNAPSHOT
 <!--     2.3.8-SNAPSHOT -->
 <!--     3.0.3 -->
-    3.0.6-SNAPSHOT
+<!--     3.0.6-SNAPSHOT -->
 <!--     3.1.0-SNAPSHOT -->
+<!--     3.2.0-SNAPSHOT -->
     </neo4j.version>
   </properties>
 
@@ -67,6 +68,11 @@
     </dependency>
 <!--     <dependency> -->
 <!--       <groupId>org.neo4j</groupId> -->
+<!--       <artifactId>neo4j-index</artifactId> -->
+<!--       <version>${neo4j.version}</version> -->
+<!--     </dependency> -->
+<!--     <dependency> -->
+<!--       <groupId>org.neo4j</groupId> -->
 <!--       <artifactId>neo4j-import-tool</artifactId> -->
 <!--       <version>${neo4j.version}</version> -->
 <!--       <classifier>tests</classifier> -->
@@ -76,11 +82,11 @@
       <artifactId>neo4j-shell</artifactId>
       <version>${neo4j.version}</version>
     </dependency>
-<!--     <dependency> -->
-<!--       <groupId>org.neo4j</groupId> -->
-<!--       <artifactId>neo4j-tools</artifactId> -->
-<!--       <version>${neo4j.version}</version> -->
-<!--     </dependency> -->
+    <dependency>
+      <groupId>org.neo4j</groupId>
+      <artifactId>neo4j-tools</artifactId>
+      <version>${neo4j.version}</version>
+    </dependency>
 
 <!--     <dependency> -->
 <!--       <groupId>org.neo4j</groupId> -->
@@ -113,6 +119,12 @@
 	  <artifactId>java-allocation-instrumenter</artifactId>
 	  <version>3.0</version>
 	</dependency>
+	
+<!-- 	<dependency> -->
+<!-- 	  <groupId>org.neo4j</groupId> -->
+<!-- 	  <artifactId>soak-puppet-workloads</artifactId> -->
+<!-- 	  <version>1.0-SNAPSHOT</version> -->
+<!-- 	</dependency> -->
 
     <dependency>
         <groupId>org.neo4j</groupId>
@@ -145,13 +157,13 @@
 <!--         <classifier>tests</classifier> -->
 <!--         <scope>test</scope> -->
 <!--     </dependency> -->
-<!--     <dependency> -->
-<!--       <groupId>org.neo4j</groupId> -->
-<!--       <artifactId>neo4j-primitive-collections</artifactId> -->
-<!--       <version>${neo4j.version}</version> -->
-<!--       <type>test-jar</type> -->
-<!--       <scope>test</scope> -->
-<!--     </dependency> -->
+    <dependency>
+      <groupId>org.neo4j</groupId>
+      <artifactId>neo4j-primitive-collections</artifactId>
+      <version>${neo4j.version}</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
      <dependency>
       <groupId>com.google.jimfs</groupId>
       <artifactId>jimfs</artifactId>
@@ -171,7 +183,7 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.10</version>
+      <version>4.12</version>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>

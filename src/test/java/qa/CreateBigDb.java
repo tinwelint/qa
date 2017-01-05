@@ -37,7 +37,7 @@ public class CreateBigDb
         // GIVEN
         String storeDir = "big-db-1M";
         FileUtils.deleteRecursively( new File( storeDir ) );
-        BatchInserter inserter = BatchInserters.inserter( storeDir );
+        BatchInserter inserter = BatchInserters.modifier( storeDir );
 
         // WHEN
         int maxNodes = 1_000_000;

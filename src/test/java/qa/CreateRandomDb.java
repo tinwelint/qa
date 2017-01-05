@@ -34,9 +34,7 @@ import org.neo4j.graphdb.PropertyContainer;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.graphdb.Transaction;
-import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 import org.neo4j.io.fs.FileUtils;
-import org.neo4j.kernel.impl.store.format.highlimit.HighLimit;
 
 public class CreateRandomDb
 {
@@ -48,7 +46,8 @@ public class CreateRandomDb
                 cleared(
                         "target/randomdb"
                         )
-                ).setConfig( GraphDatabaseSettings.record_format, HighLimit.NAME )
+                )
+//                .setConfig( GraphDatabaseSettings.record_format, HighLimit.NAME )
                 .newGraphDatabase();
         try
         {

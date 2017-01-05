@@ -20,6 +20,7 @@
 package qa;
 
 import org.junit.Test;
+import versiondiff.VersionDifferences;
 
 import java.io.File;
 
@@ -50,7 +51,7 @@ public class CheckPointingRecoveryBreakage
             FileUtils.deleteRecursively( new File( dir ) );
             ProcessUtil.executeSubProcess( getClass(), 10, MINUTES, dir );
 
-            new GraphDatabaseFactory().newEmbeddedDatabase( new File( dir ) ).shutdown();
+            VersionDifferences.newDb( dir ).shutdown();
             ConsistencyCheckTool.main( new String[] {dir} );
         }
     }
@@ -58,7 +59,7 @@ public class CheckPointingRecoveryBreakage
     public static void main( String[] args ) throws Exception
     {
         long checkPointIntervalMs = 500;
-        final GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder( new File( args[0] ) )
+        final GraphDatabaseService db = VersionDifferences.newDbBuilder( args[0] )
                 .setConfig( GraphDatabaseSettings.check_point_interval_time, String.valueOf( checkPointIntervalMs ) + "ms" )
                 .newGraphDatabase();
 

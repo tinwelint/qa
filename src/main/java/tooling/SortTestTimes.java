@@ -67,7 +67,7 @@ public class SortTestTimes
             {
                 try
                 {
-                    if ( line.startsWith( "Tests run:" ) && line.contains( magicName ) && line.contains( magicTime ) )
+                    if ( line.contains( "Tests run:" ) && line.contains( magicName ) && line.contains( magicTime ) )
                     {
                         tests.add( new TestTime( parseTestName( line ), parseTime( line ) ) );
                     }
