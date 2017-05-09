@@ -19,38 +19,81 @@
  */
 package tooling;
 
-import versiondiff.VersionDifferences;
-
+import java.io.File;
 import java.io.IOException;
 
+import org.neo4j.graphdb.DynamicLabel;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Label;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.RelationshipType;
+import org.neo4j.graphdb.ResourceIterator;
+import org.neo4j.graphdb.Transaction;
+import org.neo4j.graphdb.factory.EnterpriseGraphDatabaseFactory;
+import org.neo4j.graphdb.factory.GraphDatabaseSettings;
+import org.neo4j.kernel.configuration.Settings;
 
 public class StartStopDb
 {
     public static void main( String[] args ) throws IOException
     {
-        GraphDatabaseService db = VersionDifferences.newDbBuilder( args[0] )
-//                .setConfig( GraphDatabaseSettings.allow_store_upgrade, Settings.TRUE )
+        GraphDatabaseService db =
+                new EnterpriseGraphDatabaseFactory().newEmbeddedDatabaseBuilder( new File( args[0] ) )
+//                VersionDifferences.newDbBuilder( args[0] )
+                .setConfig( GraphDatabaseSettings.allow_store_upgrade, Settings.TRUE )
                 .newGraphDatabase();
+        try
+        {
+//            System.out.println( "Press ENTER to shutdown and exit..." );
+//            System.in.read();
 
-        System.out.println( "Press ENTER to shutdown and exit..." );
-        System.in.read();
-//        doSomeTransactions( db );
+            doSomeTransactions( db );
 
-        db.shutdown();
+//            something( db );
+        }
+        finally
+        {
+            db.shutdown();
+        }
     }
 
-//    private static void doSomeTransactions( GraphDatabaseService db )
-//    {
-//        try ( Transaction tx = db.beginTx() )
-//        {
-//            for ( int i = 0; i < 10; i++ )
-//            {
-//                Node node = db.createNode();
-//                node.addLabel( DynamicLabel.label( "label-" + i ) );
-//                node.setProperty( "key-" + i, i );
-//            }
-//            tx.success();
-//        }
-//    }
+    private static void something( GraphDatabaseService db )
+    {
+        Label label = Label.label( "TestRun" );
+        String key = "id";
+
+        try ( Transaction tx = db.beginTx() )
+        {
+            try ( ResourceIterator<Node> nodes =
+                    db.findNodes( label, key, "68bb156b-5399-481c-8516-a45f16ccde62" ) )
+            {
+                while ( nodes.hasNext() )
+                {
+                    System.out.println( nodes.next() );
+                }
+            }
+            tx.success();
+        }
+    }
+
+    private static void doSomeTransactions( GraphDatabaseService db )
+    {
+        for ( int t = 0; t < 100; t++ )
+        {
+            try ( Transaction tx = db.beginTx() )
+            {
+                for ( int i = 0; i < 100; i++ )
+                {
+                    Node node = db.createNode();
+                    node.addLabel( DynamicLabel.label( "label-" + i ) );
+                    node.setProperty( "key-" + i, i );
+
+                    Relationship relationship = node.createRelationshipTo( node, RelationshipType.withName( "YEAH" ) );
+                    relationship.setProperty( "yo", "" + i );
+                }
+                tx.success();
+            }
+        }
+    }
 }

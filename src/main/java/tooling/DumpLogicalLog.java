@@ -26,9 +26,9 @@ public class DumpLogicalLog
     public static void main( String[] args ) throws IOException
     {
         // 2.3
-        org.neo4j.kernel.impl.util.DumpLogicalLog.main( args );
+//        org.neo4j.kernel.impl.util.DumpLogicalLog.main( args );
 
-        // 3.0
-//        org.neo4j.tools.dump.DumpLogicalLog.main( args );
+//        // 3.0
+        org.neo4j.tools.dump.DumpLogicalLog.main( args );
     }
 }

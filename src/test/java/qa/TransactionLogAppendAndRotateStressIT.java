@@ -247,7 +247,7 @@ public class TransactionLogAppendAndRotateStressIT
         }
 
         @Override
-        public void opened( File logFile, long logVersion, long lastTransactionId, boolean clean )
+        public void opened( File logFile, long logVersion, long lastTransactionId, boolean initialized )
         {
         }
     }

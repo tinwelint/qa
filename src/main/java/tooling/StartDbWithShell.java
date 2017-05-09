@@ -23,7 +23,6 @@ import java.io.File;
 
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.EnterpriseGraphDatabaseFactory;
-import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 import org.neo4j.kernel.configuration.Settings;
 import org.neo4j.shell.ShellSettings;
 
@@ -34,7 +33,7 @@ public class StartDbWithShell
         String path = args.length > 0 ? args[0] : "target/test-data/shell-db";
         GraphDatabaseService db = new EnterpriseGraphDatabaseFactory().newEmbeddedDatabaseBuilder( new File( path ) )
                 .setConfig( ShellSettings.remote_shell_enabled, Settings.TRUE )
-                .setConfig( GraphDatabaseSettings.allow_store_upgrade, Settings.TRUE )
+//                .setConfig( GraphDatabaseSettings.allow_store_upgrade, Settings.TRUE )
                 .newGraphDatabase();
         System.out.println( "db " + path + " started, ENTER to quit" );
         System.in.read();

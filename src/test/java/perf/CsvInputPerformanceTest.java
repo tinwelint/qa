@@ -41,7 +41,7 @@ import static org.neo4j.unsafe.impl.batchimport.input.csv.Configuration.COMMAS;
 import static org.neo4j.unsafe.impl.batchimport.input.csv.DataFactories.data;
 import static org.neo4j.unsafe.impl.batchimport.input.csv.DataFactories.defaultFormatNodeFileHeader;
 import static org.neo4j.unsafe.impl.batchimport.input.csv.DataFactories.defaultFormatRelationshipFileHeader;
-import static org.neo4j.unsafe.impl.batchimport.input.csv.DataFactories.nodeData;
+import static org.neo4j.unsafe.impl.batchimport.input.csv.DataFactories.datas;
 import static org.neo4j.unsafe.impl.batchimport.input.csv.DataFactories.relationshipData;
 import static org.neo4j.unsafe.impl.batchimport.input.csv.IdType.ACTUAL;
 
@@ -55,7 +55,7 @@ public class CsvInputPerformanceTest
         Decorator<InputNode> nodeDecorator = InputEntityDecorators.additiveLabels( array( "YO" ) );
         int maxProcessors = getRuntime().availableProcessors();
         Input input = new CsvInput(
-                nodeData( data( nodeDecorator, defaultCharset(), new File( "K:\\csv\\nodes.csv" ) ) ),
+                datas( data( nodeDecorator, defaultCharset(), new File( "K:\\csv\\nodes.csv" ) ) ),
                 defaultFormatNodeFileHeader(),
                 relationshipData(),
                 defaultFormatRelationshipFileHeader(),

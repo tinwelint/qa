@@ -30,12 +30,14 @@ import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
+import org.neo4j.graphdb.factory.GraphDatabaseSettings;
+
 import static qa.perf.Operations.single;
 
 import static java.util.concurrent.TimeUnit.MINUTES;
 
 import static org.neo4j.graphdb.Label.label;
-import static org.neo4j.helpers.collection.Iterators.first;
+import static org.neo4j.helpers.collection.Iterators.count;
 
 public class CreateLabeledNodesPerformanceTest
 {
@@ -51,7 +53,7 @@ public class CreateLabeledNodesPerformanceTest
     @Test
     public void shouldMeasurePerformance() throws Exception
     {
-        GraphDatabaseTarget target = new GraphDatabaseTarget();
+        GraphDatabaseTarget target = new GraphDatabaseTarget( GraphDatabaseSettings.label_scan_store.name(), "lucene" );
 
         Operation<GraphDatabaseTarget> createManyEmptyNodes = new Operation<GraphDatabaseTarget>()
         {
@@ -72,6 +74,42 @@ public class CreateLabeledNodesPerformanceTest
             }
         };
 
+        Operation<GraphDatabaseTarget> createManyLabeledNodes = new Operation<GraphDatabaseTarget>()
+        {
+            @Override
+            public void perform( GraphDatabaseTarget on )
+            {
+                for ( int i = 0; i < 10; i++ )
+                {
+                    Label label = Label.label( "Label" + i );
+                    try ( Transaction tx = on.db.beginTx() )
+                    {
+                        for ( int j = 0; j < 1_000_000; j++ )
+                        {
+                            on.db.createNode( label );
+                        }
+                        tx.success();
+                    }
+                    System.out.println( "Created nodes for label " + i );
+                }
+            }
+        };
+
+        Operation<GraphDatabaseTarget> createUnlabeledNode = new Operation<GraphDatabaseTarget>()
+        {
+            private final Label me = label( "Me" );
+
+            @Override
+            public void perform( GraphDatabaseTarget on )
+            {
+                try ( Transaction tx = on.db.beginTx() )
+                {
+                    on.db.createNode();
+                    tx.success();
+                }
+            }
+        };
+
         Operation<GraphDatabaseTarget> createLabeledNode = new Operation<GraphDatabaseTarget>()
         {
             private final Label me = label( "Me" );
@@ -81,13 +119,25 @@ public class CreateLabeledNodesPerformanceTest
             {
                 try ( Transaction tx = on.db.beginTx() )
                 {
-                    on.db.createNode( me ); // me.... me, me, meee
+                    on.db.createNode( me );
                     tx.success();
                 }
-                try ( Transaction tx = on.db.beginTx();
-                        ResourceIterator<Node> nodes = on.db.findNodes( me ) )
+            }
+        };
+
+        Operation<GraphDatabaseTarget> scanNodesWithLabel = new Operation<GraphDatabaseTarget>()
+        {
+            @Override
+            public void perform( GraphDatabaseTarget on )
+            {
+                try ( Transaction tx = on.db.beginTx() )
                 {
-                    first( nodes );
+                    Label label = Label.label( "Label" + ThreadLocalRandom.current().nextInt( 10 ) );
+
+                    try ( ResourceIterator<Node> nodes = on.db.findNodes( label ) )
+                    {
+                        count( nodes );
+                    }
                     tx.success();
                 }
             }
@@ -119,6 +169,6 @@ public class CreateLabeledNodesPerformanceTest
             }
         };
 
-        Performance.measure( target, createManyEmptyNodes, single( changeLabels ), 100, MINUTES.toSeconds( 1 ) );
+        Performance.measure( target, createManyLabeledNodes, single( scanNodesWithLabel ), 20, MINUTES.toSeconds( 1 ) );
     }
 }

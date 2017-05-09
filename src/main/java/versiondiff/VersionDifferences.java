@@ -22,21 +22,18 @@ package versiondiff;
 import java.io.File;
 import java.util.Iterator;
 
-import org.neo4j.graphdb.DynamicLabel;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.factory.GraphDatabaseBuilder;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
-import org.neo4j.helpers.collection.IteratorUtil;
+import org.neo4j.helpers.collection.Iterators;
 import org.neo4j.helpers.collection.Visitor;
-import org.neo4j.kernel.GraphDatabaseAPI;
-import org.neo4j.kernel.api.index.IndexConfiguration;
-import org.neo4j.kernel.impl.store.InvalidRecordException;
-import org.neo4j.kernel.impl.store.NeoStore;
+import org.neo4j.kernel.impl.storageengine.impl.recordstorage.RecordStorageEngine;
+import org.neo4j.kernel.impl.store.NeoStores;
 import org.neo4j.kernel.impl.store.RecordStore;
 import org.neo4j.kernel.impl.store.record.AbstractBaseRecord;
-import org.neo4j.tooling.GlobalGraphOperations;
+import org.neo4j.kernel.internal.GraphDatabaseAPI;
 
 public class VersionDifferences
 {
@@ -55,59 +52,59 @@ public class VersionDifferences
 
 
     // 3.0
-//    public static NeoStores neoStores( GraphDatabaseService db )
-//    {
-//        return ((GraphDatabaseAPI)db).getDependencyResolver().resolveDependency( RecordStorageEngine.class )
-//                .testAccessNeoStores();
-//    }
-//
-//    public static <RECORD extends AbstractBaseRecord> void scanAllRecords( RecordStore<RECORD> store,
-//            Visitor<RECORD,RuntimeException> visitor )
-//    {
-//        store.scanAllRecords( visitor );
-//    }
-//
-//    public static Iterable<Relationship> getAllRelationships( GraphDatabaseService db )
-//    {
-//        return db.getAllRelationships();
-//    }
-//
-//    public static Label label( String name )
-//    {
-//        return Label.label( name );
-//    }
-//
+    public static NeoStores neoStores( GraphDatabaseService db )
+    {
+        return ((GraphDatabaseAPI)db).getDependencyResolver().resolveDependency( RecordStorageEngine.class )
+                .testAccessNeoStores();
+    }
+
+    public static <RECORD extends AbstractBaseRecord> void scanAllRecords( RecordStore<RECORD> store,
+            Visitor<RECORD,RuntimeException> visitor )
+    {
+        store.scanAllRecords( visitor );
+    }
+
+    public static Iterable<Relationship> getAllRelationships( GraphDatabaseService db )
+    {
+        return db.getAllRelationships();
+    }
+
+    public static Label label( String name )
+    {
+        return Label.label( name );
+    }
+
 //    public static IndexConfiguration nonUniqueIndexConfiguration()
 //    {
 //        return IndexConfiguration.NON_UNIQUE;
 //    }
-//
-//    public static long count( Iterator<?> iterator )
-//    {
-//        return Iterators.count( iterator );
-//    }
-//
-//    public static GraphDatabaseService newDb( File storeDir )
-//    {
-//        return new GraphDatabaseFactory().newEmbeddedDatabase( storeDir );
-//    }
-//
-//    public static GraphDatabaseBuilder newDbBuilder( File storeDir )
-//    {
-//        return new GraphDatabaseFactory().newEmbeddedDatabaseBuilder( storeDir );
-//    }
-//
-//    public static GraphDatabaseService newDb( String storeDir )
-//    {
-//        return newDb( new File( storeDir ) );
-//    }
-//
-//    public static GraphDatabaseBuilder newDbBuilder( String storeDir )
-//    {
-//        return newDbBuilder( new File( storeDir ) );
-//    }
 
-    // 2.3
+    public static long count( Iterator<?> iterator )
+    {
+        return Iterators.count( iterator );
+    }
+
+    public static GraphDatabaseService newDb( File storeDir )
+    {
+        return new GraphDatabaseFactory().newEmbeddedDatabase( storeDir );
+    }
+
+    public static GraphDatabaseBuilder newDbBuilder( File storeDir )
+    {
+        return new GraphDatabaseFactory().newEmbeddedDatabaseBuilder( storeDir );
+    }
+
+    public static GraphDatabaseService newDb( String storeDir )
+    {
+        return newDb( new File( storeDir ) );
+    }
+
+    public static GraphDatabaseBuilder newDbBuilder( String storeDir )
+    {
+        return newDbBuilder( new File( storeDir ) );
+    }
+
+//    // 2.3
 //    public static NeoStores neoStores( GraphDatabaseService db )
 //    {
 //        return ((GraphDatabaseAPI)db).getDependencyResolver().resolveDependency( NeoStores.class );
@@ -170,66 +167,66 @@ public class VersionDifferences
 //        return newDbBuilder( new File( storeDir ) );
 //    }
 
-    // 2.2
-    public static NeoStore neoStores( GraphDatabaseService db )
-    {
-        return ((GraphDatabaseAPI)db).getDependencyResolver().resolveDependency( NeoStore.class );
-    }
-
-    public static <RECORD extends AbstractBaseRecord> void scanAllRecords( RecordStore<RECORD> store,
-            Visitor<RECORD,RuntimeException> visitor )
-    {
-        long lowId = store.getNumberOfReservedLowIds();
-        long highId = store.getHighId();
-        for ( long id = lowId; id < highId; id++ )
-        {
-            try
-            {
-                visitor.visit( store.getRecord( id ) );
-            }
-            catch ( InvalidRecordException e )
-            {   // OK
-            }
-        }
-    }
-
-    public static Iterable<Relationship> getAllRelationships( GraphDatabaseService db )
-    {
-        return GlobalGraphOperations.at( db ).getAllRelationships();
-    }
-
-    public static Label label( String name )
-    {
-        return DynamicLabel.label( name );
-    }
-
-    public static IndexConfiguration nonUniqueIndexConfiguration()
-    {
-        return new IndexConfiguration( false );
-    }
-
-    public static long count( Iterator<?> iterator )
-    {
-        return IteratorUtil.count( iterator );
-    }
-
-    public static GraphDatabaseAPI newDb( String storeDir )
-    {
-        return (GraphDatabaseAPI) new GraphDatabaseFactory().newEmbeddedDatabase( storeDir );
-    }
-
-    public static GraphDatabaseAPI newDb( File storeDir )
-    {
-        return (GraphDatabaseAPI) new GraphDatabaseFactory().newEmbeddedDatabase( storeDir.getAbsolutePath() );
-    }
-
-    public static GraphDatabaseBuilder newDbBuilder( String storeDir )
-    {
-        return new GraphDatabaseFactory().newEmbeddedDatabaseBuilder( storeDir );
-    }
-
-    public static GraphDatabaseBuilder newDbBuilder( File storeDir )
-    {
-        return new GraphDatabaseFactory().newEmbeddedDatabaseBuilder( storeDir.getAbsolutePath() );
-    }
+//    // 2.2
+//    public static NeoStore neoStores( GraphDatabaseService db )
+//    {
+//        return ((GraphDatabaseAPI)db).getDependencyResolver().resolveDependency( NeoStore.class );
+//    }
+//
+//    public static <RECORD extends AbstractBaseRecord> void scanAllRecords( RecordStore<RECORD> store,
+//            Visitor<RECORD,RuntimeException> visitor )
+//    {
+//        long lowId = store.getNumberOfReservedLowIds();
+//        long highId = store.getHighId();
+//        for ( long id = lowId; id < highId; id++ )
+//        {
+//            try
+//            {
+//                visitor.visit( store.getRecord( id ) );
+//            }
+//            catch ( InvalidRecordException e )
+//            {   // OK
+//            }
+//        }
+//    }
+//
+//    public static Iterable<Relationship> getAllRelationships( GraphDatabaseService db )
+//    {
+//        return GlobalGraphOperations.at( db ).getAllRelationships();
+//    }
+//
+//    public static Label label( String name )
+//    {
+//        return DynamicLabel.label( name );
+//    }
+//
+//    public static IndexConfiguration nonUniqueIndexConfiguration()
+//    {
+//        return new IndexConfiguration( false );
+//    }
+//
+//    public static long count( Iterator<?> iterator )
+//    {
+//        return IteratorUtil.count( iterator );
+//    }
+//
+//    public static GraphDatabaseAPI newDb( String storeDir )
+//    {
+//        return (GraphDatabaseAPI) new GraphDatabaseFactory().newEmbeddedDatabase( storeDir );
+//    }
+//
+//    public static GraphDatabaseAPI newDb( File storeDir )
+//    {
+//        return (GraphDatabaseAPI) new GraphDatabaseFactory().newEmbeddedDatabase( storeDir.getAbsolutePath() );
+//    }
+//
+//    public static GraphDatabaseBuilder newDbBuilder( String storeDir )
+//    {
+//        return new GraphDatabaseFactory().newEmbeddedDatabaseBuilder( storeDir );
+//    }
+//
+//    public static GraphDatabaseBuilder newDbBuilder( File storeDir )
+//    {
+//        return new GraphDatabaseFactory().newEmbeddedDatabaseBuilder( storeDir.getAbsolutePath() );
+//    }
 }

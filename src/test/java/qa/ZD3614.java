@@ -24,7 +24,6 @@ import org.neo4j.test.RepeatRule;
 import org.neo4j.test.RepeatRule.Repeat;
 
 import static org.junit.Assert.assertEquals;
-
 import static org.neo4j.helpers.collection.Iterables.count;
 
 public class ZD3614
