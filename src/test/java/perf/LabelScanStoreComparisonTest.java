@@ -1,24 +1,25 @@
-/*
+/**
  * Copyright (c) 2002-2017 "Neo Technology,"
  * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
  * This file is part of Neo4j.
  *
  * Neo4j is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 package perf;
 
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
@@ -37,22 +38,19 @@ import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 import org.neo4j.helpers.progress.ProgressListener;
+import org.neo4j.index.internal.gbptree.RecoveryCleanupWorkCollector;
 import org.neo4j.io.fs.DefaultFileSystemAbstraction;
 import org.neo4j.io.pagecache.PageCache;
-import org.neo4j.kernel.api.impl.index.storage.DirectoryFactory;
-import org.neo4j.kernel.api.impl.index.storage.PartitionedIndexStorage;
-import org.neo4j.kernel.api.impl.labelscan.LuceneLabelScanIndexBuilder;
-import org.neo4j.kernel.api.impl.labelscan.LuceneLabelScanStore;
-import org.neo4j.kernel.api.impl.labelscan.storestrategy.BitmapDocumentFormat;
 import org.neo4j.kernel.api.labelscan.LabelScanStore;
 import org.neo4j.kernel.api.labelscan.LabelScanWriter;
-import org.neo4j.kernel.configuration.Config;
 import org.neo4j.kernel.impl.api.scan.FullStoreChangeStream;
-import org.neo4j.kernel.impl.factory.OperationalMode;
 import org.neo4j.kernel.impl.index.labelscan.NativeLabelScanStore;
 import org.neo4j.kernel.lifecycle.LifeRule;
+import org.neo4j.kernel.monitoring.Monitors;
 import org.neo4j.test.rule.PageCacheRule;
 import org.neo4j.test.rule.RandomRule;
+import org.neo4j.test.rule.TestDirectory;
+
 import static java.lang.System.currentTimeMillis;
 
 import static org.neo4j.collection.primitive.PrimitiveLongCollections.EMPTY_LONG_ARRAY;
@@ -69,17 +67,15 @@ public class LabelScanStoreComparisonTest
     public static Collection<Object[]> runs()
     {
         Collection<Object[]> runs = new ArrayList<>();
-//        runs.add( array( 100_000, 100, Stores.LUCENE, Loads.RANDOM ) );
-//        runs.add( array( 100_000, 100, Stores.NATIVE, Loads.RANDOM ) );
-//        runs.add( array( 10_000_000, 10_000, Stores.LUCENE, Loads.SEQUENTIAL ) );
+        runs.add( array( 100_000, 100, Stores.NATIVE, Loads.RANDOM ) );
         runs.add( array( 100_000_000_000L, 10_000, Stores.NATIVE, Loads.SEQUENTIAL ) );
         return runs;
     }
 
     @Rule
     public PageCacheRule pageCacheRule = new PageCacheRule( config().withInconsistentReads( false ) );
-//    @Rule
-//    public TestDirectory testDirectory = TestDirectory.testDirectory( getClass() ).keepDirectoryAfterSuccessfulTest();
+    @Rule
+    public TestDirectory testDirectory = TestDirectory.testDirectory( getClass() ).keepDirectoryAfterSuccessfulTest();
     @Rule
     public final RandomRule random = new RandomRule();
     @Rule
@@ -130,13 +126,14 @@ public class LabelScanStoreComparisonTest
 //        System.out.println( "read:" + duration( readTime ) );
     }
 
+    @Ignore
     @Test
     public void shouldInvokeCrashCleaner() throws Exception
     {
         // GIVEN
         LabelScanStore labelScanStore = life.add( factory.apply(
                 () -> pageCacheRule.getPageCache( new DefaultFileSystemAbstraction() ),
-                new File( "C:\\Users\\Matilas\\dev\\neo4j\\qa\\target\\test-data\\perf.LabelScanStoreComparisonTest\\354b6c8ad77e0d85cba0747db092dd20" ) ) );
+                testDirectory.absolutePath() ) );
         life.init();
         labelScanStore.newWriter().close();
         life.start();
@@ -146,34 +143,13 @@ public class LabelScanStoreComparisonTest
 
     enum Stores implements BiFunction<Supplier<PageCache>,File,LabelScanStore>
     {
-        LUCENE
-        {
-            @Override
-            public LabelScanStore apply( Supplier<PageCache> pageCache, File storeDir )
-            {
-                DirectoryFactory directoryFactory = DirectoryFactory.PERSISTENT;
-                Config config = Config.empty();
-                BitmapDocumentFormat documentFormat = BitmapDocumentFormat._64;
-                PartitionedIndexStorage indexStorage = new PartitionedIndexStorage( directoryFactory,
-                        new DefaultFileSystemAbstraction(), storeDir,
-                        LuceneLabelScanIndexBuilder.DEFAULT_INDEX_IDENTIFIER, false );
-                LuceneLabelScanIndexBuilder builder = LuceneLabelScanIndexBuilder.create()
-                                        .withDirectoryFactory( directoryFactory )
-                                        .withIndexStorage( indexStorage )
-                                        .withOperationalMode( OperationalMode.single )
-                                        .withConfig( config )
-                                        .withDocumentFormat( documentFormat );
-                return new LuceneLabelScanStore( builder, FullStoreChangeStream.EMPTY,
-                        LabelScanStore.Monitor.EMPTY );
-            }
-        },
         NATIVE
         {
             @Override
             public LabelScanStore apply( Supplier<PageCache> pageCache, File storeDir )
             {
                 return new NativeLabelScanStore( pageCache.get(), storeDir, FullStoreChangeStream.EMPTY, false,
-                        LabelScanStore.Monitor.EMPTY );
+                        new Monitors(), RecoveryCleanupWorkCollector.IMMEDIATE );
             }
         };
     }

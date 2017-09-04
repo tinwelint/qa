@@ -1,3 +1,22 @@
+/**
+ * Copyright (c) 2002-2017 "Neo Technology,"
+ * Network Engine for Objects in Lund AB [http://neotechnology.com]
+ *
+ * This file is part of Neo4j.
+ *
+ * Neo4j is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 package tooling;
 
 import java.io.File;
@@ -13,7 +32,8 @@ import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.kernel.api.Statement;
 import org.neo4j.kernel.api.exceptions.index.IndexNotFoundKernelException;
-import org.neo4j.kernel.api.index.IndexDescriptor;
+import org.neo4j.kernel.api.schema.IndexQuery;
+import org.neo4j.kernel.api.schema.index.IndexDescriptor;
 import org.neo4j.kernel.impl.api.index.IndexProxy;
 import org.neo4j.kernel.impl.api.index.IndexingService;
 import org.neo4j.kernel.impl.core.ThreadToStatementContextBridge;
@@ -50,8 +70,8 @@ public class CheckSchemaIndex
                         db.getDependencyResolver().resolveDependency( ThreadToStatementContextBridge.class )
                                 .getKernelTransactionBoundToThisThread( true ).acquireStatement() )
                 {
-                    label = Label.label( statement.readOperations().labelGetName( descriptor.getLabelId() ) );
-                    key = statement.readOperations().propertyKeyGetName( descriptor.getPropertyKeyId() );
+                    label = Label.label( statement.readOperations().labelGetName( descriptor.schema().getLabelId() ) );
+                    key = statement.readOperations().propertyKeyGetName( descriptor.schema().getPropertyId() );
                 }
 
                 int count = 0;
@@ -62,7 +82,7 @@ public class CheckSchemaIndex
                 Map<String,AtomicInteger> incorrectKeyCounts = new HashMap<>();
                 try ( IndexReader reader = proxy.newReader() )
                 {
-                    PrimitiveLongIterator nodeIds = reader.scan();
+                    PrimitiveLongIterator nodeIds = reader.query( IndexQuery.exists( descriptor.schema().getPropertyId() ) );
                     while ( nodeIds.hasNext() )
                     {
                         long nodeId = nodeIds.next();

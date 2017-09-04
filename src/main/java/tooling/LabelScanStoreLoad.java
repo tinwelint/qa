@@ -1,3 +1,22 @@
+/**
+ * Copyright (c) 2002-2017 "Neo Technology,"
+ * Network Engine for Objects in Lund AB [http://neotechnology.com]
+ *
+ * This file is part of Neo4j.
+ *
+ * Neo4j is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 package tooling;
 
 import com.hazelcast.internal.util.ThreadLocalRandom;
@@ -13,7 +32,7 @@ import org.neo4j.helpers.progress.ProgressListener;
 import org.neo4j.helpers.progress.ProgressMonitorFactory;
 import org.neo4j.index.internal.gbptree.GenSafePointer;
 import org.neo4j.index.internal.gbptree.IdSpace;
-import org.neo4j.index.internal.gbptree.TreeNode;
+import org.neo4j.index.internal.gbptree.TreeNodeV3;
 import org.neo4j.index.internal.gbptree.TreeState;
 import org.neo4j.index.internal.gbptree.TreeStatePair;
 import org.neo4j.io.fs.DefaultFileSystemAbstraction;
@@ -162,17 +181,17 @@ public class LabelScanStoreLoad
     private static boolean crashRandomPointer( PageCursor cursor, ThreadLocalRandom random,
             TreeNode<LabelScanKey,LabelScanValue> treeNode, long crashGeneration )
     {
-        if ( TreeNode.nodeType( cursor ) != TreeNode.NODE_TYPE_TREE_NODE )
+        if ( TreeNodeV3.nodeType( cursor ) != TreeNodeV3.NODE_TYPE_TREE_NODE )
         {
             return false;
         }
 
-        int max = TreeNode.isInternal( cursor ) ? 4 : 3;
+        int max = TreeNodeV3.isInternal( cursor ) ? 4 : 3;
         switch ( random.nextInt( max ) )
         {
-        case 0: crashPointerByOffset( cursor, TreeNode.BYTE_POS_NEWGEN, random, crashGeneration ); break;
-        case 1: crashPointerByOffset( cursor, TreeNode.BYTE_POS_LEFTSIBLING, random, crashGeneration ); break;
-        case 2: crashPointerByOffset( cursor, TreeNode.BYTE_POS_RIGHTSIBLING, random, crashGeneration ); break;
+        case 0: crashPointerByOffset( cursor, TreeNodeV3.BYTE_POS_NEWGEN, random, crashGeneration ); break;
+        case 1: crashPointerByOffset( cursor, TreeNodeV3.BYTE_POS_LEFTSIBLING, random, crashGeneration ); break;
+        case 2: crashPointerByOffset( cursor, TreeNodeV3.BYTE_POS_RIGHTSIBLING, random, crashGeneration ); break;
         case 3: // child
             int child = random.nextInt( treeNode.keyCount( cursor ) );
             crashPointerByOffset( cursor, treeNode.childOffset( child ), random, crashGeneration );

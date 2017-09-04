@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2002-2016 "Neo Technology,"
+ * Copyright (c) 2002-2017 "Neo Technology,"
  * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
  * This file is part of Neo4j.
@@ -28,7 +28,7 @@ public class DumpLogicalLog
         // 2.3
 //        org.neo4j.kernel.impl.util.DumpLogicalLog.main( args );
 
-//        // 3.0
-        org.neo4j.tools.dump.DumpLogicalLog.main( args );
+////        // 3.0
+//        org.neo4j.tools.dump.DumpLogicalLog.main( args );
     }
 }
