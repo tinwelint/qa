@@ -27,7 +27,7 @@ import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.schema.ConstraintDefinition;
 import org.neo4j.graphdb.schema.IndexDefinition;
 
-import static org.neo4j.helpers.collection.IteratorUtil.loop;
+import static org.neo4j.helpers.collection.Iterators.loop;
 
 public class CheckIndex
 {

@@ -19,6 +19,8 @@
  */
 package qa;
 
+import versiondiff.VersionDifferences;
+
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.DynamicLabel;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -27,6 +29,7 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.graphdb.ResourceIterable;
+import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.index.IndexManager;
 import org.neo4j.graphdb.index.RelationshipIndex;
@@ -35,7 +38,6 @@ import org.neo4j.graphdb.schema.IndexDefinition;
 import org.neo4j.index.lucene.QueryContext;
 import org.neo4j.index.lucene.ValueContext;
 import org.neo4j.test.TestGraphDatabaseFactory;
-import org.neo4j.tooling.GlobalGraphOperations;
 
 public class RelationshipIndexProblem
 {
@@ -61,9 +63,9 @@ public class RelationshipIndexProblem
 
     Node findNodeByLabelAndProperty( Label label, String propertyName, int value )
     {
-        final ResourceIterable<Node> results =
-                graphDatabaseService.findNodesByLabelAndProperty( label, propertyName, value );
-        return results.iterator().hasNext() ? results.iterator().next() : null;
+        final ResourceIterator<Node> results =
+                graphDatabaseService.findNodes( label, propertyName, value );
+        return results.hasNext() ? results.next() : null;
     }
 
     Relationship createRelationship( int leftNickname, int rightNickname )
@@ -121,11 +123,11 @@ public class RelationshipIndexProblem
             {
                 index.drop();
             }
-            for ( Relationship relationship : GlobalGraphOperations.at( graphDatabaseService ).getAllRelationships() )
+            for ( Relationship relationship : VersionDifferences.getAllRelationships( graphDatabaseService ) )
             {
                 relationship.delete();
             }
-            for ( Node node : GlobalGraphOperations.at( graphDatabaseService ).getAllNodes() )
+            for ( Node node : VersionDifferences.getAllNodes( graphDatabaseService ) )
             {
                 node.delete();
             }

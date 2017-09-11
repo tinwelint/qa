@@ -19,6 +19,8 @@
  */
 package tooling;
 
+import versiondiff.VersionDifferences;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -38,10 +40,8 @@ public class StartStopDb
 {
     public static void main( String[] args ) throws IOException
     {
-        GraphDatabaseService db =
-                new EnterpriseGraphDatabaseFactory().newEmbeddedDatabaseBuilder( new File( args[0] ) )
-//                VersionDifferences.newDbBuilder( args[0] )
-                .setConfig( GraphDatabaseSettings.allow_store_upgrade, Settings.TRUE )
+        GraphDatabaseService db = VersionDifferences.newDbBuilder( new EnterpriseGraphDatabaseFactory(), args[0] )
+                .setConfig( GraphDatabaseSettings.allow_upgrade, Settings.TRUE )
                 .newGraphDatabase();
         try
         {
@@ -86,7 +86,7 @@ public class StartStopDb
                 for ( int i = 0; i < 100; i++ )
                 {
                     Node node = db.createNode();
-                    node.addLabel( DynamicLabel.label( "label-" + i ) );
+                    node.addLabel( Label.label( "label-" + i ) );
                     node.setProperty( "key-" + i, i );
 
                     Relationship relationship = node.createRelationshipTo( node, RelationshipType.withName( "YEAH" ) );

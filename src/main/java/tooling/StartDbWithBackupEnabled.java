@@ -19,6 +19,8 @@
  */
 package tooling;
 
+import versiondiff.VersionDifferences;
+
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
@@ -26,7 +28,7 @@ public class StartDbWithBackupEnabled
 {
     public static void main( String[] args ) throws Exception
     {
-        GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase( args[0] );
+        GraphDatabaseService db = VersionDifferences.newDb( args[0] );
 
 //        Future<?> load = new SillyLoad( db, 10, 1000 );
 

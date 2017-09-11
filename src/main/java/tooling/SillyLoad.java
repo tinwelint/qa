@@ -19,6 +19,8 @@
  */
 package tooling;
 
+import versiondiff.VersionDifferences;
+
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -32,7 +34,6 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
-import org.neo4j.tooling.GlobalGraphOperations;
 
 import static org.neo4j.helpers.collection.Iterables.count;
 
@@ -108,7 +109,7 @@ public class SillyLoad implements Future<Object>
                 {
                     try ( Transaction tx = db.beginTx() )
                     {
-                        count( GlobalGraphOperations.at( db ).getAllNodes() );
+                        count( VersionDifferences.getAllNodes( db ) );
                         System.out.println( "just read stuff" );
                         tx.success();
                     }

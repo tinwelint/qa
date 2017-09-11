@@ -30,10 +30,9 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.graphdb.Transaction;
-import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 import org.neo4j.io.fs.FileUtils;
-import org.neo4j.test.ProcessUtil;
+import org.neo4j.test.ProcessTestUtil;
 
 import static java.lang.System.currentTimeMillis;
 import static java.util.concurrent.TimeUnit.MINUTES;
@@ -49,7 +48,7 @@ public class CheckPointingRecoveryBreakage
         for ( int i = 0; i < 100; i++ )
         {
             FileUtils.deleteRecursively( new File( dir ) );
-            ProcessUtil.executeSubProcess( getClass(), 10, MINUTES, dir );
+            ProcessTestUtil.executeSubProcess( getClass(), 10, MINUTES, dir );
 
             VersionDifferences.newDb( dir ).shutdown();
             ConsistencyCheckTool.main( new String[] {dir} );

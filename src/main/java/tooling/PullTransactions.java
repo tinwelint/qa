@@ -22,8 +22,8 @@ package tooling;
 import tooling.CommandReactor.Action;
 
 import org.neo4j.helpers.Args;
-import org.neo4j.kernel.GraphDatabaseAPI;
 import org.neo4j.kernel.ha.UpdatePuller;
+import org.neo4j.kernel.internal.GraphDatabaseAPI;
 
 public class PullTransactions implements Action
 {

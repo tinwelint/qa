@@ -22,6 +22,7 @@ package tooling;
 import tooling.CommandReactor.Action;
 
 import java.io.File;
+
 import org.neo4j.backup.OnlineBackupSettings;
 import org.neo4j.cluster.ClusterSettings;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -31,11 +32,13 @@ import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 import org.neo4j.graphdb.factory.HighlyAvailableGraphDatabaseFactory;
 import org.neo4j.graphdb.index.Index;
 import org.neo4j.helpers.Args;
-import org.neo4j.kernel.GraphDatabaseAPI;
 import org.neo4j.kernel.ha.HaSettings;
 import org.neo4j.kernel.ha.cluster.member.ClusterMembers;
 import org.neo4j.kernel.impl.transaction.log.TransactionIdStore;
+import org.neo4j.kernel.internal.GraphDatabaseAPI;
+
 import static java.lang.Integer.parseInt;
+import static versiondiff.VersionDifferences.newDbBuilder;
 
 public class StartClusterMember
 {
@@ -47,13 +50,13 @@ public class StartClusterMember
         int offset = Integer.parseInt( args[0] );
         String dir = new File( root, "member-" + offset ).getAbsolutePath();
 //        FileUtils.deleteRecursively( new File( dir ) );
-        GraphDatabaseAPI db = (GraphDatabaseAPI) new HighlyAvailableGraphDatabaseFactory().newEmbeddedDatabaseBuilder( dir )
+        GraphDatabaseAPI db = (GraphDatabaseAPI) newDbBuilder( new HighlyAvailableGraphDatabaseFactory(), dir )
                 .setConfig( GraphDatabaseSettings.keep_logical_logs, "10G size" )
                 .setConfig( ClusterSettings.server_id, "" + (1+offset) )
                 .setConfig( ClusterSettings.cluster_server, server( 5001+offset ) )
                 .setConfig( ClusterSettings.initial_hosts, server( 5001 ) + "," + server( 5002 ) + "," + server( 5003 ) )
                 .setConfig( OnlineBackupSettings.online_backup_server, server( 6362+offset ) )
-                .setConfig( HaSettings.tx_push_strategy, HaSettings.TxPushStrategy.fixed.name() )
+                .setConfig( HaSettings.tx_push_strategy, HaSettings.TxPushStrategy.fixed_ascending.name() )
 //                .setConfig( ShellSettings.remote_shell_enabled, "true" )
                 .newGraphDatabase();
 

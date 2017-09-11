@@ -38,14 +38,13 @@ import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 import org.neo4j.graphdb.index.Index;
 import org.neo4j.graphdb.index.RelationshipIndex;
-import org.neo4j.helpers.Settings;
-import org.neo4j.index.impl.lucene.LuceneIndexImplementation;
+import org.neo4j.helpers.collection.Iterators;
+import org.neo4j.index.impl.lucene.legacy.LuceneIndexImplementation;
 import org.neo4j.index.lucene.ValueContext;
 import org.neo4j.io.fs.FileUtils;
+import org.neo4j.kernel.configuration.Settings;
 
 import static org.junit.Assert.assertEquals;
-
-import static org.neo4j.helpers.collection.IteratorUtil.single;
 
 public class CreateDbWithLegacyIndexes
 {
@@ -268,7 +267,7 @@ public class CreateDbWithLegacyIndexes
                 ENTITY entity = entityFactory.newInstance();
                 String key = keyFactory.apply( i );
                 Object value = valueFactory.apply( i );
-                assertEquals( entity, single( (Iterator<ENTITY>) index.get( key, value ) ) );
+                assertEquals( entity, Iterators.single( (Iterator<ENTITY>) index.get( key, value ) ) );
             }
             tx.success();
         }
